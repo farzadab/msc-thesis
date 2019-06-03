@@ -1,3 +1,6 @@
+# MSc Thesis
+This repo is supposed to contain the contents of my MSc thesis. It is based on a [template](https://github.com/briandealwis/ubcdiss) by Brian de Alwis. The rest of this document contains the original contents of the README file.
+
 # `ubcdiss` &ndash; a dissertation template for LaTeX
 
 This distribution provides a LaTeX template for writing a dissertation
