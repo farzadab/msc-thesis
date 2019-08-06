@@ -1,0 +1,94 @@
+\chapter{Background}
+\label{ch:background}
+
+\section{Reinforcement Learning}
+\label{sec:background_rl}
+
+\ac{RL} emerges from the idea that we humans tend to learn about the world through interaction. We can observe the world around us and act in certain ways in order to achieve our goals and at the same time learn more about the world that we live in. \ac{RL} is a computational approach to learning from interactions with the final goal of maximizing a numerical reward signal \cite{rlbook}.
+
+This approach makes \ac{RL} applicable to a wide variety of application, but at the same time, this generality proves to be problematic as it yields many challenges. The learner is not told which actions are better or worse and it has to figure everything out itself using a weak reward signal. To make matters worse, the consequences of an action might not be immediately visible to the learner as they might be revealed only after a long duration of time.
+
+
+More concretely, at each time-step $0 \leq t < T$ the agent, i.e. the learner, observes a state $s_t \in \mathit{S}$ and can therefore take any action $a_t \in \mathit{A}$. The agent chooses this action based on its policy $\pi(s_t)$ which describes a distribution over actions given the current state.
+The environment then responds to the agent by returning a scalar reward $r_t$ and a next state $s_{t+1} \sim p(s_{t+1}|s_t, a_t)$. The goal is to maximize the discounted cumulative reward in expectation:
+
+\begin{align}
+    J = \mathbb{E}_{\tau \sim \rho} \left[ \sum_{i=0}^{T-1} \gamma^t r_t \right]
+\end{align}
+
+where $\tau = (s_0, a_0, r_0, \dots, s_T)$ is called a rollout and the probability of encountering a rollout is computed according to $\rho(\tau) = p(s_0) \Pi_{t=0}^{T-1} \pi(a_t|s_t) p(s_{t+1}|s_t,a_t)$. $\gamma \in [0,1]$ is called the discount factor and controls how much we care about future rewards rather than immediate rewards. This value is usually set to one or a value close to it.
+
+\section{Policy Gradient Methods}
+\label{sec:background_pg}
+
+Most of the time in \ac{RL} we want to maximize the expected return [cite Sutton 2nd book page 54 but it doesn't use the expectation format], i.e. the sum of the rewards achieved:
+
+\begin{align}
+    J(\theta) = \mathbb{E}_{\tau \sim p_\theta}\left[ \sum_{t=1}^{T} r_t \right],
+\end{align}
+\red{fix T ... not consistent}
+where $p_\theta(\tau) = p(s_1)\prod_{t=1}^T \pi_\theta(a_t|s_t) p(s_{t+1}|s_t,a_t)$ is the distribution over all possible trajectories $\tau = (s_1, a_1, s_2, \dots, a_{T-1}, s_T)$ brought about by acting according to the policy $\pi_\theta$ in our target environment.
+
+Since the space of problems that \ac{RL} tries to solve is highly diverse, it is customary to see slight variations in this formulation of which the most important are the inclusion of a decaying factor $\gamma$ and the infinite-horizon formulation where $T$ is allowed to be unbounded from above \red{is this correct or should I say infinity? both are a bit weird}. Going through all of these notations is out of the scope of this article and therefore we will stick to one notation \red{should I say we might change it ... ?} \red{should I put this at the start rather than after introducing the notation or just in the footnote?}.
+
+
+\red{I think we should put this in the introduction as \autoref{sec:intro_rl}}
+
+The idea behind the \ac{PG} algorithm is pretty straight-forward. In short, it tries to optimize the average return by computing its gradient (approximately) and taking a gradient ascent step in order to increase it. However, doing this naively is not possible and that is where the algorithm works its magic. Even with such a high-level description, we might be able to guess some of the problems that can arise, such as: how to find the global optima, and are the gradients well-behaved or not. We will get back to these problems soon enough, but let us see how the algorithm works first.
+
+In order to optimize the objective \ac{PG} directly optimizes the policy $\pi$. An important assumption here is that that the policy should be stochastic rather than deterministic for this algorithm to work. Furthermore, this stochastic policy is parametrized by parameters $\theta$ and therefore the algorithm's job is to find the best parameters $\theta^*$ that maximize the return: \red{I'm doing this twice ...}
+
+\begin{align}
+    \theta^* &= \arg\max_\theta J(\theta)\\
+    &=  \arg\max_\theta \mathbb{E}_{\tau \sim p_\theta}\left[ \sum_{t=1}^{T} 
+    r_t(s_t,a_t) \right] \\
+    &= \arg\max_\theta \mathbb{E}_{\tau \sim p_\theta}\left[ R(\tau) \right]
+\end{align}
+
+Here $R$ is referring to the \textit{return} of the trajectory and it is just a more convenient way of writing the sum of the rewards. Now, in order to maximize the objective, we need to know the its gradient $\nabla_\theta J(\theta)$. The way we compute this is to use the REINFORCE trick \red{cite}:
+
+\begin{align}
+    \label{eq:obj_grad}
+    \nabla_\theta J(\theta) &= \nabla_\theta \int R(\tau) p_\theta(\tau) \\
+    &= \int R(\tau) \nabla_\theta p_\theta(\tau)\\
+    &= \int R(\tau) p_\theta(\tau) \nabla_\theta \log p_\theta(\tau)\\
+    &= \mathbb{E}_{\tau \sim p_\theta} \left[ R(\tau) \nabla_\theta \log p_\theta(\tau) \right]
+\end{align}
+
+We can switch the integral and the gradient operator under some conditions that we will explore later on. The last line uses the following identity:
+
+\begin{align*}
+    p_\theta(\tau)\nabla_\theta \log p_\theta(\tau) = p_\theta(\tau) \frac{\nabla_\theta p_\theta(\tau)}{p_\theta(\tau)} = \nabla_\theta p_\theta(\tau)
+\end{align*}
+
+Next, we can expand $\nabla_\theta \log p_\theta$:
+
+\begin{align}
+    \nabla_\theta \log p_\theta &= \nabla_\theta \left[ \log p(s_1) + \sum_{t=1}^T \log \pi_\theta(a_t|s_t) + \log p(s_{t+1} | s_t, a_t) \right]\\
+    &= \nabla_\theta \left[ \sum_{t=1}^T \log \pi_\theta(a_t|s_t) \right]\\
+    &= \sum_{t=1}^T \nabla_\theta \log \pi_\theta(a_t|s_t)
+\end{align}
+
+Substituting this back into \autoref{eq:obj_grad} we arrive at the following expression:
+
+\begin{align}
+    \nabla_\theta J(\theta) &= \mathbb{E}_{\tau \sim p_\theta} \left[ R(\tau) \sum_{t=1}^T \nabla_\theta \log \pi_\theta(a_t|s_t) \right]\\
+    &= \mathbb{E}_{\tau \sim p_\theta} \left[ \left( \sum_{t=1}^T r_t \right) \left( \sum_{t=1}^T \nabla_\theta \log \pi_\theta(a_t|s_t) \right) \right]
+\end{align}
+
+Using this formulation we can use Monte Carlo sampling \red{cite?} to approximately compute the gradient in order to iteratively improve the policy:
+
+
+\begin{align}
+    \nabla_\theta J(\theta) &\approx \frac{1}{N} \sum_{i=1}^{N} \left[ \left( \sum_{t=1}^T r_{i,t} \right) \left( \sum_{t=1}^T \nabla_\theta \log \pi_\theta(a_{i,t}|s_{i,t}) \right) \right]
+\end{align}
+
+Where, $\tau_i = (s_{i,1}, a_{i,1}, r_{i,1}, \dots, s_{i,T})$ are sample trajectories (a.k.a. rollouts) from $p_\theta$. This is known as the REINFORCE algorithm \red{cite}. \red{do I need this or should I skip it?}
+
+When computing Monte Carlo estimates, the variance of our estimates becomes important since it indicates how many samples (i.e. $N$) we should draw to get a good enough estimate of the gradient.
+
+Another observation that can be made here is that a reward time step $t$ only causally depends on actions that were made until time $t$ and are independent from decisions that are made afterwards, or in other words, action $a_t$ can only be responsible for the cost to go from time $t$ onwards. This way we can get the following objective which has reduced variance:
+
+\begin{align}
+    \nabla_\theta J(\theta) &= \mathbb{E}_{\tau \sim p_\theta} \left[ \sum_{t=1}^T \left( \nabla_\theta \log \pi_\theta(a_t|s_t)  \sum_{t'=t}^T r_t \right) \right]
+\end{align}

@@ -21,10 +21,12 @@
 % Some useful macros for typesetting terms.
 \newcommand{\file}[1]{\texttt{#1}}
 \newcommand{\class}[1]{\texttt{#1}}
+\newcommand{\red}[1]{{\color{red}#1}}
 \newcommand{\latexpackage}[1]{\href{http://www.ctan.org/macros/latex/contrib/#1}{\texttt{#1}}}
 \newcommand{\latexmiscpackage}[1]{\href{http://www.ctan.org/macros/latex/contrib/misc/#1.sty}{\texttt{#1}}}
 \newcommand{\env}[1]{\texttt{#1}}
 \newcommand{\BibTeX}{Bib\TeX}
+
 
 % Define a command \doi{} to typeset a digital object identifier (DOI).
 % Note: if the following definition raise an error, then you likely
@@ -57,5 +59,15 @@
 % \FIXME{} is a useful macro for noting things needing to be changed.
 % The following definition will also output a warning to the console
 \newcommand{\FIXME}[1]{\typeout{**FIXME** #1}\textbf{[FIXME: #1]}}
+
+% Math
+\def\R{\mathbb{R}}
+\def\argmax{\mathop{\rm arg\,max}}
+\newcommand{\argmin}[1]{\mathop{\hbox{argmin}}_{#1}}
+\newcommand{\mat}[1]{\begin{bmatrix}#1\end{bmatrix}}
+\newcommand{\alignStar}[1]{\begin{align*}#1\end{align*}}
+\newcommand{\bfpara}[1]{\paragraph{\textbf{#1}}}
+\def\half{\frac 1 2}
+\def\cond{\; | \;}
 
 % END

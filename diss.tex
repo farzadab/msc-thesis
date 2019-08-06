@@ -54,6 +54,20 @@
 %% NFSS font specification (New Font Selection Scheme)
 \usepackage{times,mathptmx,courier}
 \usepackage[scaled=.92]{helvet}
+\usepackage{amsmath}
+\usepackage{unicode-math}
+\usepackage{amssymb}
+\usepackage{subcaption}
+\usepackage{cleveref}
+\usepackage{geometry}
+
+\geometry{
+ a4paper,
+ left=32mm,
+ right=25mm,
+ top=25mm,
+ bottom=25mm,
+}
 
 %% Math or theory people may want to include the handy AMS macros
 %\usepackage{amssymb}
@@ -323,7 +337,7 @@
 %%%%% TODOOOO:
 % details of your examining committee
 \examiningcommittee{Michiel van de Panne, Computer Science}{Supervisor}
-\examiningcommittee{\color{red}Mary Maker, Materials Engineering}{Supervisory Committee Member}
+\examiningcommittee{\color{red}Leonid Sigal, Computer Science}{Supervisory Committee Member}
 \examiningcommittee{Nebulous Name, Department}{Supervisory Committee Member}
 \examiningcommittee{Magnus Monolith, Other Department}{Additional Examiner}
 
@@ -415,9 +429,16 @@
 
 %    1. Introduction
 \include{intro}
+\include{background}
 
 %    2. Main body
 % Generally recommended to put each chapter into a separate file
+\include{relatedwork}
+\include{pgcloserlook}
+\include{taskparams}
+\include{symmetry}
+%\include{cassie}
+\include{conclusions}
 %\include{relatedwork}
 %\include{model}
 %\include{impl}

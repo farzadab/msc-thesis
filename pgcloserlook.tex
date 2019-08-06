@@ -1,0 +1,17 @@
+\chapter{Policy Gradients: A Closer Look}
+\label{ch:mixedpg}
+
+Much of the success of modern \ac{RL} is due to model-free \ac{RL} algorithms \red{cite?} \red{is DQN MF or MB?} and a class of algorithms called \ac{PG}. Many people in the community have been criticizing these algorithms including Benjamin Recht \red{cite} most importantly for their sample in-efficiency \red{footnote?}  but the fact remains that \ac{PG} and its variants are among the most widely used algorithms in \ac{RL} today. They have been used to learn in-hand manipulation, highly realistic motion imitation, and highly complex games such as DoTA \red{better examples .. is starcraft PPO too?} \red{cite}.
+
+Their capabilities along with their inefficiency suggests that there is possibly much to be gained by studying the algorithms more carefully in order to better understand their limitations in hopes of improving them. The goal of this chapter is to take a closer look at \ac{PG} and figure out some of the underlying assumptions that usually gets swept up beneath the surface to better understand them and develop better approaches \red{better finish}.
+
+The rest of this chapter is organized as follows. We start with a quick introduction into the framework and how it is usually explained in \autoref{sec:background_pg}. We then discuss how the objective that \ac{PG} uses is different from the original objective in \ac{RL} and in doing so show a relationship between \ac{PG} and \ac{VO} \red{cite} and smoothing methods in \autoref{sec:pg_objective}. In \autoref{sec:pg_conv} we explore a design decision in \ac{PG} and show how we can get to algorithms similar to \ac{SAC} and \ac{DDPG} by choosing the other extreme \red{better wording}. Finally, we propose a method that combines these similar algorithms which we call "Mixed Policy Gradients" in \autoref{sec:pg_mixed}.
+
+\section{What is My Objective Function}
+\label{sec:pg_objective}
+
+\section{Where Are My Gradients Coming From}
+\label{sec:pg_conv}
+
+\section{Mixed Policy Gradients}
+\label{sec:pg_mixed}
