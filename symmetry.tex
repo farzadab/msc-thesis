@@ -1,5 +1,7 @@
-\chapter{Leveraging Symmetry}
+\chapter{Symmetry Considerations}
 \label{ch:symmetry}
+
+
 
 One obvious path towards faster-and-better learning relies on exploiting the motion symmetry
 that is a common attribute of human and animal locomotion;
@@ -62,7 +64,7 @@ in RL settings.
 All the symmetry enforcement methods we shall describe
 require both of these functions as a minimal requirement.  
 Similarly, we can define a symmetric policy to be one where the following holds
-% \autoref{eq:symmetric-policy} holds 
+% \Cref{eq:symmetric-policy} holds 
 for all states $s \in \mathcal{S}$:
 
 \begin{align}
@@ -73,8 +75,8 @@ for all states $s \in \mathcal{S}$:
 A symmetric policy thus produces the mirrored action when given the mirrored state as input. 
 RL methods such as PPO also use state-value functions during the learning process.  
 The output of these value functions should remain unchanged for any state and its mirrored counterpart.  
-The construction of the mirror functions for our environments (\autoref{sec:environments}) are further 
-elaborated in \autoref{sec:mirroring-functions}.
+The construction of the mirror functions for our environments (\Cref{sec:environments}) are further 
+elaborated in \Cref{sec:mirroring-functions}.
 
 The methods discussed in this section attempt to achieve symmetric gaits by encouraging or constraining 
 the learned policies to be symmetric. However, even if successful, this may be insufficient to guarantee a symmetric gait.  
@@ -85,7 +87,7 @@ with an asymmetric motion.
 With regard to the policy, it is not always possible to achieve exact symmetry in a parameterized model 
 such as a neural network.  For example, regions of the state space may remain unexplored 
 during the learning process, and thus symmetry cannot be enforced for such regions.  
-Therefore, the equality in \autoref{eq:symmetric-policy} is not always assumed to be strict.
+Therefore, the equality in \Cref{eq:symmetric-policy} is not always assumed to be strict.
 
 It is possible to directly optimize for gait symmetry with reinforcement learning by 
 including quantitative symmetry measures in the reward function, such as the Symmetry Index~\citep{robinson1987use} 
@@ -192,12 +194,12 @@ phase is strictly computed as a function of time.
 \begin{figure}%
   \centering
   \includegraphics[width=0.9\columnwidth]{symmetry_figures/net_architecture_2.pdf}
-  \caption{A universal method for converting any neural network into a symmetric network policy.}{$\mathcal{M}$ block is an environment-dependent state mirroring function. The two policy blocks are the same neural network module, with the output terminals re-order for illustration clarity.  The \textit{s, c, o} terminals corresponds to \textit{side}, \textit{common}, and \textit{opposite} joints as described in \autoref{sec:mirroring-functions}.}
+  \caption{A universal method for converting any neural network into a symmetric network policy.}{$\mathcal{M}$ block is an environment-dependent state mirroring function. The two policy blocks are the same neural network module, with the output terminals re-order for illustration clarity.  The \textit{s, c, o} terminals corresponds to \textit{side}, \textit{common}, and \textit{opposite} joints as described in \Cref{sec:mirroring-functions}.}
   \label{fig:net-architecture}
 \end{figure}
 
 Another approach towards enforcing symmetry is to impose symmetry at the network architecture level. 
-The goal here is to choose a network architecture such that \autoref{eq:symmetric-policy} 
+The goal here is to choose a network architecture such that \Cref{eq:symmetric-policy} 
 holds for all states~$s$ and all network parameters~$\theta$.
 There are multiple ways to go about designing such an architecture.
 However they may require some knowledge about how the actions and/or states 
@@ -221,7 +223,7 @@ In this case we can define a symmetric policy composed of an inner network $f$ a
     f(M_s(s),s)\\
     \end{bmatrix}
 \end{align*}
-It is easy to show in this case that \autoref{eq:symmetric-policy} holds:
+It is easy to show in this case that \Cref{eq:symmetric-policy} holds:
 \begin{align*}
     \pi_{side}(M_s(s)) &= \begin{bmatrix}
     f(M_s(s),M_s(M_s(s)))\\
@@ -249,7 +251,7 @@ Finally, the policy is then a combination of the common actions and the side act
         \pi_{side}(s)\\
     \end{bmatrix}
 \end{align*}
-Please refer to \autoref{fig:net-architecture} for an illustration of the NET method.
+Please refer to \Cref{fig:net-architecture} for an illustration of the NET method.
 
 A drawback of this method is that it requires knowledge about the symmetry structure of the actions/states 
 and that it needs to redefine the network structure. 
@@ -281,7 +283,7 @@ However, this can break some of the mirroring assumptions.
 The problem is most severe when using a symmetric network architecture, although other methods are
 also impacted.
 Fortunately, developing a normalization scheme that works correctly is relatively straightforward. 
-A simple approach is to duplicate the states (or actions) as in \autoref{subsec:dup_epx} 
+A simple approach is to duplicate the states (or actions) as in \Cref{subsec:dup_epx} 
 and to compute the statistics based on the aggregated set of states (or actions) and 
 their mirrored states (or actions).
 
@@ -335,14 +337,14 @@ at time $t+s$ modulo $C$, as the elements that are shifted beyond the last posit
   \label{fig:task-overview}
 \end{figure}
 
-We evaluate the effectiveness of the enforcement methods described in \autoref{sec:methods} 
+We evaluate the effectiveness of the enforcement methods described in \Cref{sec:methods} 
 on four different locomotion taks, i.e., RL ``environments''.  
 The environments were chosen to represent a fairly diverse range of locomotion tasks.  
 They are described in detail below.  
 For each environment, we run each method 5 times and plot the mean results.
 
-\bfpara{Walker2D}  The implementation of {\it Walker2D} environment is taken directly from PyBullet \citep{ref:Pybullet} 
-without further modification.  The purpose of this environment is to evaluate each symmetry method on 
+\bfpara{Walker2D} The implementation of {\it Walker2D} environment is taken directly from PyBullet \citep{ref:Pybullet} 
+without further modification. This character is almost identical to the one used in \Cref{sec:params_torque}. The purpose of this environment is to evaluate each symmetry method on 
 a well-established existing reinforcement learning environment.  
 The task is for the character to walk as far as possible in the forward direction in the allotted time.  
 An action is a 6D vector corresponding to a normalized torque at each of the hip, knee, and ankle on both left and right legs.  
@@ -409,7 +411,7 @@ One of our initial hypotheses was that the learning speed can be improved by enf
 Symmetry can be considered as domain knowledge that may otherwise be difficult for to learn, 
 especially considering its abstract nature.  
 However, our experiments indicated that enforcing symmetry in general has no consistent impact on the learning speed.
-As shown in \autoref{fig:learning-curves}, BASE performs well in \textit{Walker2D} and \textit{Walker3D}.  
+As shown in \Cref{fig:learning-curves}, BASE performs well in \textit{Walker2D} and \textit{Walker3D}.  
 In particular, although BASE was not initially the fastest in \textit{Walker3D}, 
 it ultimately achieves a higher return than all mirroring methods.  
 On the other hand, BASE fails to learn the \textit{Stepper} task in all five runs;
@@ -427,7 +429,7 @@ there is no clear winner in terms of learning speed.
 \begin{figure*}[tbh]
   \centering
   \includegraphics[width=\columnwidth]{symmetry_figures/LearningCurves.pdf}
-      \caption{Learning curves for different symmetry methods in each of the four locomotion environments (\autoref{sec:environments}).}{The \textit{Walker2D} plot contains two additional experiments aside from the baseline and four symmetry methods.  \textit{NET-ALT} uses an alternate formulation of symmetric network architecture described in \autoref{sec:alternate-network}.  \textit{NET-POL} is an ablation study on \textit{NET} with symmetry enforcement only on the policy network and not on the value network.}
+      \caption{Learning curves for different symmetry methods in each of the four locomotion environments (\Cref{sec:environments}).}{The \textit{Walker2D} plot contains two additional experiments aside from the baseline and four symmetry methods.  \textit{NET-ALT} uses an alternate formulation of symmetric network architecture described in \Cref{sec:alternate-network}.  \textit{NET-POL} is an ablation study on \textit{NET} with symmetry enforcement only on the policy network and not on the value network.}
   \label{fig:learning-curves}
 \end{figure*}
 
@@ -441,7 +443,7 @@ We find phase-based symmetry enforcement to be effective for imitation-guided le
 as it outperforms other methods by a significant margin for \textit{Cassie}.  
 When comparing \textit{Cassie} with \textit{DeepMimic}~\cite{2018-TOG-deepMimic}, 
 which also uses an imitation objective, we find the results to be consistent.  
-The learning curves for our \textit{DeepMimic} symmetry experiment are presented in \autoref{sec:deepmimic-results}.  
+The learning curves for our \textit{DeepMimic} symmetry experiment are presented in \Cref{sec:deepmimic-results}.  
 We hypothesize that phase-based symmetry is effective for imitation-guided tasks when
 the motion clips used for training containing suitably-periodic and symmetric motions.  
 On the other hand, PHASE constrains the period of the gait cycle, 
@@ -451,22 +453,22 @@ when used without a reference motion, i.e.,
 for \textit{Walker2D}, \textit{Walker3D}, and \textit{Stepper}, although
 it can do well in terms of quality, e.g., for \textit{Walker3D}.
 
-\bfpara{Alternate Symmetric Network}  The NET method presented in \autoref{fig:net-architecture} is 
+\bfpara{Alternate Symmetric Network}  The NET method presented in \Cref{fig:net-architecture} is 
 an intuitive way of converting any neural network into a symmetric policy.  
 However, it is perhaps not the immediate solution that one would come up with when tasked to design a symmetric neural network.  
-We include one of our earlier constructions of symmetric policy in \autoref{sec:alternate-network}, 
+We include one of our earlier constructions of symmetric policy in \Cref{sec:alternate-network}, 
 which we refer to as NET-ALT.  A major difference between NET and NET-ALT is that the latter uses 
-shared weights at the layer level to explicitly enforce the symmetry constraint in \autoref{eq:symmetric-policy}.  
+shared weights at the layer level to explicitly enforce the symmetry constraint in \Cref{eq:symmetric-policy}.  
 Despite this, the two architecture-based mirroring methods should, in theory, have similar performance.  
-As can be seen in \autoref{fig:learning-curves}, NET-ALT significantly outperforms NET in the \textit{Walker2D} environment, 
+As can be seen in \Cref{fig:learning-curves}, NET-ALT significantly outperforms NET in the \textit{Walker2D} environment, 
 along with the baseline and all other mirroring methods.  
-We believe that the structure of the symmetric layer matrix in \autoref{sec:alternate-network} 
+We believe that the structure of the symmetric layer matrix in \Cref{sec:alternate-network} 
 may be the key to resolve this gap, which remains to be verified.
 
 \bfpara{Policy Network Ablation Study}  As an ablation study, we removed the symmetry constraint 
 for the value network in the NET method.  Since our goal is to produce a symmetric policy, 
 and the value network is discarded after training, we want to see how enforcing symmetry in the value network 
-during training affects the learning speed.  In \autoref{fig:learning-curves}, the two curves of interest are 
+during training affects the learning speed.  In \Cref{fig:learning-curves}, the two curves of interest are 
 NET and NET-POL, where the latter has the symmetry constraint removed for the value network.  
 Our experiment shows that it is beneficial to enforce the symmetry constraint for the value network during training, 
 since the difference between the curves is not insignificant.  
@@ -475,12 +477,12 @@ since the difference between the curves is not insignificant.
 
 Although learning speed is a major point of interest from the ML perspective, 
 our work is nevertheless motivated by the aesthetics of symmetric gaits that is needed for applications in animation.  
-We measure the effectiveness for each symmetry enforcement methods on the metrics we defined in \autoref{sec:metrics}.  
+We measure the effectiveness for each symmetry enforcement methods on the metrics we defined in \Cref{sec:metrics}.  
 In most cases, we find that symmetric gaits are better achieved when any of the enforcement methods are applied, 
 as compared to the baseline.  The motions produced by the symmetry methods are also more 
 natural-looking, subjectively speaking, than without mirroring (see supplementary video). 
 
-The symmetry metrics results are summarized in \autoref{tab:actuation_si} and \autoref{tab:pp_msi}.  
+The symmetry metrics results are summarized in \Cref{tab:actuation_si} and \Cref{tab:pp_msi}.  
 In order to perform consistent measurement for the metrics, we omit the first two strides of data 
 in order to limit the influence of the transition period from standing to locomotion.  
 The reported metrics are calculated from the median of the ten subsequent strides after the initial two.  

@@ -1,2 +1,8 @@
 \chapter{Conclusions}
 \label{ch:conclusions}
+
+Reinforcement learning provides a promising new path for motion generation, one that can be generalized to new terrains and character morphologies effortlessly. However the current methods are computationally inefficient and unless motion captured data is used the motion quality is commonly unsatisfactory for applications in computer graphics.
+
+This work tries to tackle these two problems by investigating two of the usual suspects, the excessively large torque limits and gait asymmetry. We show that more realistic torque limits, though resulting in more natural motions, can hinder the training in the beginning. We propose to use a simple curriculum learning technique that starts with higher torque limits to speed up the training but gradually decreases the limits to arrive at more natural final motions. This way we get the best of both worlds.
+
+Next, we looked at ways of incorporating gait symmetry into the training process. Symmetric motions are generally perceived to be more attractive in humans and asymmetric patterns are commonly associated with disability or injury. We have compared four methods of enforcing symmetry on various environments as well as discussing their advantages and drawbacks in different scenarios.

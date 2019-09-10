@@ -2,20 +2,22 @@
 \label{ch:relatedwork}
 
 
-\section{Motion Symmetry}
-Motion symmetry has been a topic of interest for many years in the study of human motion and movement biomechanics. 
-Symmetric motions are perceived to be more attractive, e.g., for dance~\cite{danceSymmetry},
-and gait symmetry is seen an as a desirable outcome for physiological manipulation~\cite{robinson1987use}.
-While symmetry is a common assumption in the study of gait and posture, 
-individual gaits often do exhibit asymmetries due to various possible functional causes~\cite{seelet}.
-We refer the reader to a past review article~\cite{SADEGHI200034} for insights
-into the degree of symmetry of lower limbs movement during able-bodied gait
-and the potential influence of limb dominance on the motion symmetry of the lower extremities.
-and human gaits~\cite{riskowski}.
-It is also not obvious how to best quantify 
-the asymmetry of human gaits, and thus specific symmetry metrics have been
-proposed~\cite{symmetry_measures,symmetry_phase_portrait}.
+Locomotion in humans and other animals is a long-standing problem. Different aspects of this problem have been a subject of study in numerous fields for decades, such as computer graphics, robotics, bio-mechanics, control, and machine learning. In this work, however, we will be focusing on the results coming from the computer graphics community and to some extent the machine learning community. More specifically, this article is concerned with learning locomotion skills for physics-based character animation.
 
+
+
+% One argument against kinematic methods is that directly manipulating object positions can lead to solutions which do not agree with the laws of physics, such as changing the center of mass of an object in mid-air. Therefore, the only way to get truly realistic and achievable motions is by using the laws of physics. This line of thinking leads us to physics-based methods. Then the question becomes, how to come up with the appropriate torques and forces to apply in order to get the desirable outcome.
+
+
+\section{Kinematic Locomotion}
+
+One of the earliest approaches to making characters move, that is still practiced today, is key-framing. In this technique the animator has to decide the character position and joint orientations for each frame, often using computer assisted software. However, this approach is time consuming and requires a highly skilled user. Motion capture studios were created as an alternative to this approach, but they require expensive equipment and are constrained by the confines of the studio. Much work has been put into re-using the already captured motions using techniques such as Motion Graphs \cite{Kovar:2002:MG:566570.566605}. Recent approaches use neural networks to learn kinematic motions that can respond to a directional command from the user as well as height variation, such as Phase-Functioned Neural Networks  \cite{PFNN} and Mode-Adaptive Neural Networks \cite{MANN}.
+
+\section{Physics-Based Locomotion}
+
+The idea of using the laws of physics to animate articulated bodies dates back to 1985 \cite{Armstrong1985}. Commonly, physics-based methods boil down to one form of optimization that is constrained with the rules of physics. However, as there are a variety of requirements on the target result, there is a lot diversity on how to solve these problems.
+
+% 
 The robust control of physics-based character locomotion has been a long-standing challenge
 for character animation. We refer the reader to a survey paper for a detailed history~\cite{STAR2012}.  
 An early and enduring approach to controller design has been to structure control policies around finite state
@@ -37,19 +39,45 @@ Lastly, trajectory optimization-based methods also commonly assume motion symmet
 More recently, locomotion synthesis has attracted significant
 attention from the reinforcement learning (RL) community, where the OpenAI Gym tasks have 
 become a popular RL benchmark~\cite{ref:OpenAI-Gym}. In this context, symmetry constraints are commonly 
-not imposed, and the resulting motions often have noticable asymmetries. 
+not imposed and the torque limits are unrealistic. As a consequence, the resulting motions are often idiosyncratic and have noticable asymmetries.
 Further work extends these efforts in a variety of ways, including the traversing challenging terrains~\cite{ref:deepmindParkour}.
-More realistic and dynamic motions can be achieved with the help of 
-motion-capture clips~\cite{2017-TOG-deepLoco,2018-TOG-deepMimic} and these use
-what we refer to as the PHASE symmetry method with the goal of more efficient learning, although with
+More realistic and dynamic motions can be achieved with the help of motion-capture clips~\cite{2017-TOG-deepLoco,2018-TOG-deepMimic} and these use what in \Cref{ch:symmetry} is referred to as the PHASE symmetry method with the goal of more efficient learning, although with
 no robust documented experiments to verify the efficiency gains.
 The efficient learning of controllers capable of producing high-quality motion for realistic-strength characters remains
 a challenging problem in the absence of motion capture data. Recent work makes
 progress on this problem using RL with a combination of energy optimization, learning curriculum, and 
 an auxiliary motion symmetry loss~\cite{Yu-SIGGRAPH-2018}, which we shall refer to as the LOSS method.
+% 
 
-A recent result investigates how DRL problems can become prone to learning plateaus because
-of winner-take-all solution modes~\cite{ray_interf}. These can easily arise in DRL because the distribution of data
-for policy learning is directly influenced by the policy itself. Thus in the case of multiple diverging 
-decision paths, one of the modes will quickly dominate. The choice of whether to encourage symmetry,
-and how to do so, may create an optimization landscape that exhibits similar properties.
+
+One approach to this problem is to put all the requirements, including the initial and final pose, into a giant optimization problem constrained by the Newtonian laws and optimize a cost function such as energy consumption \cite{spacetime_constraints_luxo}. This optimization problem can then be solved by an existing algorithm such as the quadratic programming (QP) methods. However, the existence of discontinuities, such as contacts, can be problematic in this setting. One solution is to use soft constraints at the start of the optimization procedure and gradually make the constraints more rigid \cite{Mordatch:2012:DCB:2185520.2185539}.
+
+Another approach that is more suitable to dynamic settings like video games and robot control is that instead of learning one set of fixed actions the agent learns a controller. The controller can observe the target and optionally the state of the character in order to output the actions that achieve this target. \citeauthor{Tassa2014ControllimitedDD} usef classical control theory to learn a controller for a full 3D humanoid model. \citeauthor{2013-TOG-MuscleBasedBipeds} used an evolutionary algorithm to co-design the character morphology along with the final controller for muscle-based characters. The design of the controller is commonly posed as an optimization problem. However, SIMBICON \cite{Yin07} provides a meticulously designed framework that allows manual creation of controllers that work even across different simulators.
+
+Physics-based approaches can also make use of motion capture data. DeepMimic \cite{2018-TOG-deepMimic} allows motions to be learned simply from a short motion capture clip. The algorithm has been shown to work on different motions and character morphologies. DeepLoco \cite{2017-TOG-deepLoco} uses motion capture data to learn a low-level controller that is in turn controlled by a high-level controller that can plan the motion by sensing its surrounding environment.
+
+It is possible to get a walking or running gait without the use of motion capture data or imposing some form of structure on the solution. However, the resulting motions are usually far from appealing with an asymmetric gait and the hands flailing about \cite{emergence_locomotion}. 
+
+
+\section{Motion Symmetry}
+Motion symmetry has been a topic of interest for many years in the study of human motion and movement biomechanics. 
+Symmetric motions are perceived to be more attractive, e.g., for dance~\cite{danceSymmetry},
+and gait symmetry is seen an as a desirable outcome for physiological manipulation~\cite{robinson1987use}.
+While symmetry is a common assumption in the study of gait and posture, 
+individual gaits often do exhibit asymmetries due to various possible functional causes~\cite{seelet}.
+We refer the reader to a past review article~\cite{SADEGHI200034} for insights
+into the degree of symmetry of lower limbs movement during able-bodied gait
+and the potential influence of limb dominance on the motion symmetry of the lower extremities.
+and human gaits~\cite{riskowski}.
+It is also not obvious how to best quantify 
+the asymmetry of human gaits, and thus specific symmetry metrics have been
+proposed~\cite{symmetry_measures,symmetry_phase_portrait}.
+
+% 
+% 
+
+% A recent result investigates how DRL problems can become prone to learning plateaus because
+% of winner-take-all solution modes~\cite{ray_interf}. These can easily arise in DRL because the distribution of data
+% for policy learning is directly influenced by the policy itself. Thus in the case of multiple diverging 
+% decision paths, one of the modes will quickly dominate. The choice of whether to encourage symmetry,
+% and how to do so, may create an optimization landscape that exhibits similar properties.

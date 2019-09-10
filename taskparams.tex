@@ -1,51 +1,148 @@
-\chapter{Task Hyper-parameters Matter}
+\chapter{Torque Limit Considerations}
 \label{ch:envparams}
 
-Plenty of effort in reinforcement learning has been spent on finding better or faster algorithms that can solve any algorithm as a black box. However, we \red{should I say I?} believe that the design of the character and the tasks can be in some cases far more important in achieving superior results \red{what does good refer to here?} than the algorithm itself. In other words, making the problem itself easier to solve can be easier than finding an algorithm that can solve harder problems. To demonstrate this simple observation in this chapter we will be looking at what we call "task hyper-parameters" as opposed to algorithm hyper-parameters. In \autoref{sec:params_torque} we will be looking at the effects of choosing higher/lower torque limits and we will show that a simple torque limit curriculum can help achieve not just better results but to get there more reliably. In \autoref{sec:params_ts} we will be looking at how the choice of control time-step can effect the control/planning trade-off \red{no results yet}. Lastly, in \autoref{sec:params_residual} we will look at how adding a simple residual action to the controller effects both the learning speed as well as the quality of the motion.
+Plenty of effort in reinforcement learning has been spent on finding better or faster algorithms that can solve any algorithm as a black box. However, most success stories, such as AlphaGo \cite{alphago}, still required careful engineering. Therefore, I believe that the design of the character and the tasks can be in some cases far more important in achieving superior results than the algorithm itself. In other words, making the problem itself simpler and more compatible with the algorithm used can be more useful than finding an algorithm that can solve more difficult problems. In this chapter we will be looking at the effects of different \ac{TL} settings, which will be define shortly, and we will show that a simple torque limit curriculum can help achieve not just better results but to get there more reliably
 
-
-\section{The Effect of Torque Limits}
+\section{Introduction}
 \label{sec:params_torque}
 
-In order to measure the strength of a person we can measure the strength of its muscles. Similarly we can measure the strength of a robot by measuring the strength of its motors. Since robots do not get tired it suffices to measure the maximum force its motors can apply. Better yet, we can measure the maximum amount of torque that each motor can apply since torque rather than force does not depend on the moment of arm at the output \red{don't think I explained that well}. Therefore for robots and simulated characters modeled after them it is important to have the correct \textit{torque limit} which describes the strength of the motor. Having higher or lower torque limits therefore can have serious implications on what the agent can or cannot do and how "easy" it would be \red{should I describe easy?}.
+In order to measure the raw strength of a person we can measure the strength of his/her muscles. Similarly we can measure the strength of a robot by measuring the strength of its motors. In order to do this, we need to consider each joint separately. A natural measure of strength is the amount of force that the joint can output, however, force depends on the length of the moment arm, therefore we need to measure torque instead. Furthermore, as robots are (ideally) consistent and never get tired like humans do, we only need to measure the maximum amount of torque output. Hence, a standard way of representing robot strength is through a \ac{TL} vector. Naturally, a simulated character modeled after a robot needs to have a pre-specified \ac{TL}. The correctness of \ac{TL} is of high importance as it determines the capabilities of the robot. Having a higher or lower \ac{TL} setting therefore can have serious implications on what the agent can or cannot do and how quickly or more reliably the task can be solved.
+
+Experimenting in a simulator, however, allows us to use torque limits that are much higher or lower than in real life and investigate their effects. In most applications, lower limits tend to be more desirable. In robotics, using excessive forces can cause damage to the robot as well as its surroundings including any human or animals that may be in its vicinity. Using a low torque limit can be seen as a simple but effective safety mechanism that can alleviate many problems. The consequences of using unrealistic limits in computer graphics may not be as dire, however humans are good as perceiving inconsistencies when it comes to their own bodies. An impossibly high jump, pushing a heavy object with one hand, and recovering from a fall by using excessive are immediately recognizable by a human observer. Low limits on the other hand are usually not noticeable unless the character or robot fails to accomplish the task at hand, as people rarely ever use maximum strength for day to day tasks.
+
+Consequently, researchers in the robotics and computer graphics communities tend to care about using realistic limits on the characters. On the other hand, the machine learning community is usually not concerned with such details and tends to use characters with excessive \ac{TL}. This has been a source of complaints from the aforementioned communities.
+
+One common way of compelling the agent to use less force is via an energy consumption cost. This approach is widely used in practice, however, it has two disadvantages. First, the agent still has the ability to use excessive force if it so desires. More importantly, the energy consumption can be harmful for training. Therefore, the weight of the energy consumption cost is set low enough that it may be ignored by the agent \cite{Yu-SIGGRAPH-2018}.
+
+We hope to solve both of these problems by using \ac{TL} as hard constraints. As a result, this section is planning to answer the following questions: how much does the torque limit effect learning and can we make use of this knowledge to find better solutions.
+
+Not surprisingly our results indicate that the \ac{TL} settings strongly effect the final solution. Below a certain threshold the learning algorithm generally fails to find any solution that can solve the task in a reasonable amount of time. However, we demonstrate that this phenomenon is not a consequence of the problem setup but rather a quirk of the optimization procedure by showing the existence of higher performing solutions with the same setting. Finally, we offer a simple solution to fix this problem by using a curriculum during learning. This helps the agent learn in a simpler environment and then transfer the learned solution to the more difficult setting.
+
+\section{Environments}
+
+We experiment with a set of existing locomotion environments from the Roboschool package~\cite{ref:roboschool}. All characters are simulated using PyBullet~\cite{ref:Pybullet} which is a Python interface for the Bullet3 physics engine.
+
+In all of the environments used here the task is for the character to walk as far as possible in the forward direction in the allotted time. The reward function also includes some extra terms to encourage the agent to use less energy and stay alive longer. The observation space in all of these environments consists of root information (root z-coordinate, x and y heading vector, root velocity, roll, and pitch), joint angles, joint angular velocities, and binary foot contact information.
+
+\bfpara{Walker2D} is a simplified bipedal character whose movements are constrained to a 2D plane. An action is a 6D vector corresponding to a normalized torque at each of the hip, knee, and ankle on both left and right legs. The observation space is 22D and it weighs about 24Kg.
+
+\bfpara{Hopper} is a one-legged character constrained to a 2D plane. It is similar to the Walker2D with one leg missing. The action space is 3D where each dimension controls the torque at the hip, knee, and ankle. The observation space is 15D and it weights about 16Kg.
+
+\bfpara{HalfCheetah} is 2D model that closely resembles a quadruped with only a fore and a hind left (no sides). An action is a 6D vector, similar to Walker2D, corresponding to the normalized torques at the thigh, shin, and the foot for each of the fore and hind legs. The observation space is 26D and consists of the same information as Walker2D with the addition of more fine-grained contact information. The character weighs about 38Kg.
+
+\bfpara{Ant} is a 3D character that resembles an insect with four legs. It simply consists of a torso as well as four legs that are each divided into two segments. The action space is 8D and the observation space is 28D containing the same information as Walker2D. Despite being three dimensional, this character is highly stable due to having four legs. The character weighs about 182Kg.
 
 
-\red{talk about how lower torque limits is more desirable.}
+\section{Methods}
 
+In order to experiment with different torque limits we need a way to dynamically modify the limits in each environment. Therefore we slightly modified the aforementioned environments to include a parameter denoted by the \ac{TLM}. \ac{TLM} is a single scalar variable and the torque limits are altogether multiplied by this shared scalar which lets us shrink or expand the limits all at once. It is possible to have a specific multiplier for each joint, however, a single variable seems sufficient for the purposes of this article.
+
+We used PPO \cite{ppo} for all the experiments. The hyper-parameters used can be found in \Cref{sec:envparam_hyperparams}. Each experiment collected 6 million environment time steps in total and the experiments involving Walker2D were replicated 5 times each.
+
+
+% \red{Comment on whether the current limits are realistic or how far they are from reality  +++  mention that Roboschool already has more realistic than MuJoCo.}
+
+% \red{\url{https://www.researchgate.net/figure/Joint-torque-and-power-for-human-hip-knee-and-ankle-in-treadmill-walking-Joint-torques_fig1_272484378}}
+
+% \red{thigh and knee both have a default of 100 Nm, whereas ankle is at 30 Nm}
+
+\section{Results}
 
 \subsection{Torque Limit Baseline Experiments}
-We can demonstrate the basic idea using a robotic environment and a simple walking task which can later on be used as a baseline. Therefore we choose an environment called the \textit{Walker2D} from the Roboschool package \footnote{\url{https://github.com/openai/roboschool}} and modify it to have a variable torque limit. This environment simulates a simplified bipedal character whose movements are constrained to a 2D plane. The simulation is done using PyBullet \footnote{\url{https://pybullet.org/}} which is a Python interface for the Bullet3 physics engine. The task is simply to walk forward, that is, make as much forward progress as possible in the x-axis. However, the reward function also includes terms other than the forward progress to encourage the agent to use less energy and stay alive longer.
 
-You can see the effect of increasing/decreasing the torque limit in \autoref{fig:torque_limit_base}. Not surprisingly the agents that had a higher torque limit achieve a higher reward. However, below a certain point (0.6x and 0.8x torque limit as well as some of the runs with 1.0x) the agent has not learned to make any forward progress, essentially just stands still and avoids early termination.
+To answer how much the torque limit can effect the final solution we run a set of experiments on the Walker2D environment with different values of $TLM$ specified. To rule out the effect of random noise which has been shown to be an important contributing factor in \ac{DRL} experiments \cite{rl_that_matters} we run each experiment five times with different random seeds and the mean of the data is reported as well as the best and the worst results.
 
 \begin{figure}
     \centering
     \begin{subfigure}[t]{\textwidth}
         \centering
-        \includegraphics[width=80mm]{img/TorqueLimit_Reward.pdf}
+        \includegraphics[width=90mm]{img/TorqueLimit_Reward.pdf}
         \caption{Cumulative rewards}
     \end{subfigure}
     \begin{subfigure}[t]{\textwidth}
         \centering
-        \includegraphics[width=80mm]{img/TorqueLimit_Progress.pdf}
+        \includegraphics[width=90mm]{img/TorqueLimit_Progress.pdf}
         \caption{Amount of progress in each iteration}
+        \label{fig:torque_limit_base_b}
     \end{subfigure}
-    \caption{Final performance of the agent with different torque limit levels.}{The error bars reflect the worst and the best performance achieved by the same algorithm over 5 different runs with different seed values.}
+    \caption{Final performance of the agent with different \ac{TLM} values.}{The error bars reflect the best and the worst performance achieved by the same algorithm over 5 different runs with different seed values.}
     \label{fig:torque_limit_base}
 \end{figure}
 
-The results for the default torque limit (1.0x in the same figure) show us something interesting. First, the variance in the results is really high. This is a known problem of reinforcement learning algorithms \cite{rl_that_matters}. More importantly, this hints at the existence of a local optima where the agent does not learn to move (as evident by the zero progress) and just avoids early termination by standing still. \red{maybe I need to explain more why I believe this is a local optima.} Even though the results of training with higher torque limits show variations as well, none of them seem to be stuck in this local optima. Third, the results seem to indicate that it is not possible to learn to walk with the lower torque limits of 0.6 and 0.8. We will shortly see that this is not the case.
+The final cumulative return as well as the amount of progress made at test time are shown in \Cref{fig:torque_limit_base}. Not surprisingly the agents that had a higher torque limit constraint achieved higher returns. Interestingly, below a certain point (all runs with $TLM \leq 0.8$ as well as some runs with $TLM=1$) the agent failed to make any forward progress. Note that the cumulative return in these cases are still as high as one thousand. This is the result of the agent learning to stand still and avoiding early termination instead of learning to walk.
+
+The results for the default torque limit ($TLM=1$ in the same figure) show us something interesting. First, the variance in the results is really high. This is a known problem of reinforcement learning algorithms \cite{rl_that_matters}. More importantly, this hints at the existence of a local optima where the agent does not learn to move and just avoids early termination by standing still. Even though the results of training with higher torque limits show variations as well, none of them seem to be stuck in this local optima. Lastly, the results seem to indicate that it is not possible to walk with the lower torque limits of 0.6 and 0.8. We will shortly see that this is not the case.
 
 \subsection{Torque Limit Curriculum}
-If our hypothesis is correct that the agents are getting stuck in a local optima in lower torque limits, it may be possible to get a better controller simply by using a better initialization and the higher torque limit agents though operating in a slightly different regime can be a good starting point. This leads us to use \textit{curriculum learning} \cite{Bengio:2009:CL:1553374.1553380}.
+If our hypothesis is correct that the agents are getting stuck in a local optima with lower torque limits, it may be possible to get a better controller simply by using a better initialization. Agents trained with higher torque limits can intuitively provide a good starting point. This leads us to \textit{curriculum learning} \cite{Bengio:2009:CL:1553374.1553380}.
 
-Curriculum learning is motivated by how humans and animals learn and is based on the idea of learning gradually from simple concepts to more difficult ones. In this approach, instead of training on the most difficult version of the problem, the training is divided into multiple stages where the first stage is a simplified version of the problem and task becomes more difficult at each stage until the last stage which is the original problem to be solved.
+Curriculum learning is motivated by how humans and animals learn and is based on the idea of learning gradually from simple concepts to more difficult ones. In this approach, instead of training on the most difficult version of the problem, the training is divided into multiple stages where the first stage is a simplified version of the problem and task becomes more difficult at each stage until the last stage in which the agent is faced with the full blown problem.
 
-Since tasks with a higher torque limit seem to be easier to solve, we can define a curriculum where the agent first sees high torque limit environments but gradually the limit is lowered until it matches our target.
+According to \Cref{fig:torque_limit_base}, tasks with higher torque limits seem to be easier to solve. Therefore, we can define a curriculum where the agent first sees high torque limit environments but gradually the limit is lowered linearly until it matches our final target. To make the training more stationary the training is divided into a number of levels during which \ac{TLM} stays fixed. The number of these levels is a hyper-parameter denoted by $NLevels$. For most experiments we used $NLevels=10$.
+
+The results of applying the torque limit curriculum technique can be seen in \Cref{fig:torque_limit_curr}. This method not only achieves higher performance, it also manages to sidestep the local optima as evident in \Cref{fig:torque_limit_curr_b}. As a bonus, this approach seems to be more reliable in most cases as its variance seems to be lower than the baseline approach, except at $TLM=0.6$. In the latter case, the baseline always converges to the local optima which has relatively low variance, however this is not the desired behavior.
 
 
-\section{The Effect of Control Time-step}
-\label{sec:params_ts}
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{\textwidth}
+        \centering
+        \includegraphics[width=90mm]{img/TorqueLimit_Curr_Reward.pdf}
+        \caption{Cumulative rewards}
+    \end{subfigure}
+    \begin{subfigure}[t]{\textwidth}
+        \centering
+        \includegraphics[width=90mm]{img/TorqueLimit_Curr_Progress.pdf}
+        \caption{Amount of progress in each iteration}
+        \label{fig:torque_limit_curr_b}
+    \end{subfigure}
+    \caption{The effect of curriculum learning for Walker2D.}{Blue plots show the final performance of the agents which started out with $TLM=1.6$ and the \ac{TLM} was decreased to the target value in ten steps. The red is the same as \Cref{fig:torque_limit_base}. All experiments are done with 5 different seeds for consistency.}
+    \label{fig:torque_limit_curr}
+\end{figure}
 
-\section{Residual Control for Imitation}
-\label{sec:params_residual}
+
+\subsection{Ablation and More Environments}
+
+In order to further validate our approach, we tested it on the Half Cheetah, Ant, and Hopper environments as well. Also, we compared our results with another curriculum approach that is very similar to our own, namely, an exploration rate curriculum. In this approach the amount of exploration noise is varied at training time by starting at a high value to explore the solution space well and annealing it to a lower value in order to increase the final motion quality.
+
+The results are available in \Cref{fig:torque_limit_envs}. All experiments used the same hyper-parameters, namely with $NLevels=10$ and the \ac{TLM} going from $1.2$ to $0.6$. The exploration curriculum seems to be helpful to some extent but the \ac{TL} curriculum works better for the Half Cheetah and the Ant. However, it fails to make much improvement in the case of the Hopper where the exploration curriculum approach delivers the best final performance.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=130mm]{img/TorqueLimit_Envs.pdf}
+    \caption{Torque limit curriculum results for Half Cheetah, Ant, and Hopper.}
+    \label{fig:torque_limit_envs}
+\end{figure}
+
+\subsection{Curriculum Sensitivity}
+\label{subsec:curr_sensitivity}
+
+This curriculum learning technique seems to be useful in the different environments that we tested on, even though the gains vary across domains. However, as with many approaches, this method also includes some hyper-parameters that need to be chosen by the user. We can assume that the target torque limits are a given, but the starting limits are not fixed. Furthermore, the optimal value for the \textit{NLevels} hyper-parameter is also unknown. An important question to ask is: how sensitive is this method to the hyper-parameters. Therefore, we designed two experiments to answer this question.
+
+First, we look at the starting \ac{TLM}. We assume that the final \ac{TLM} of $0.6$ is fixed and we can vary the starting \ac{TLM} value. The results of experiment on the Walker2D environment can be seen in \Cref{fig:torque_limit_hp_tlm}. Surprisingly, all initial values seem to work relatively well. Specifically, by comparing the results for $TLM=0.8$ with \Cref{fig:torque_limit_base_b}, we see that the final performance has increased instead of decreasing even though the final $TLM$ has decreased. This might simply be due to randomness, but it is also possible that the sudden changes in curriculum training let the agent escape local optima regions more easily. More importantly, the results seem to indicate that the method is not sensitive to this hyper-parameter as long as the initial \ac{TLM} value is high enough to stumble upon a good solution.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=90mm]{img/TorqueLimit_Curr_TLM.pdf}
+    \caption{Curriculum sensitivity to initial \ac{TLM} value.}{All experiments with $TLM > 1.2$ have an acceptable performance both in terms of the average as well as the worse performance.}
+    \label{fig:torque_limit_hp_tlm}
+\end{figure}
+
+Next, we look at the number of curriculum steps required. A low number means an abrupt change but a high number would mean changing slowly but frequently. Both approaches have their merits. Changing slowly means the previous solution will still work under the new conditions, but it also means that there might not be enough time to get adjusted to the new situation before the next change. Abrupt changes can also be useful for getting out of a local solution. Again, we run a similar experiment as before on the Walker2D environment with the \ac{TLM} going from $1.6$ to $0.6$ with different number of steps. The results are provided in \Cref{fig:torque_limit_hp_steps}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=90mm]{img/TorqueLimit_Curr_Steps.pdf}
+    \caption{Curriculum sensitivity to the number of steps.}
+    \label{fig:torque_limit_hp_steps}
+\end{figure}
+
+The results in both cases show some variability, which is to be expected, but there is no clear winner or a general trend to be pointed out. This is reassuring, as it shows that the method is not sensitive to small hyper-parameter changes. This makes the method more easily applicable to different settings.
+
+
+
+\section{Conclusions}
+In this chapter we have tried to show that the construction and the details of the locomotion environment are important, and the best design for learning need not be the most realistic one. Here, we looked at the effects of torque limits on learning. Torque limits describe how strong the character is and indirectly decides which movements are possible and which ones are not. The robotic and computer graphics communities tend to specify torque limits based on real life robots and animals, but the machine learning community is less concerned with such details.
+
+The torque limit setting is indeed important, as evident by the decrease in the final performance achieved in different settings. Furthermore, we show that this setting is specifically important in the context of reinforcement learning since with more restrictive configurations the learner tends to get stuck in local optima regions increasingly often. Therefore doing the initial training with higher torque limits is useful for sidestepping local optima.
+

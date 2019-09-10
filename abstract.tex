@@ -3,10 +3,10 @@
 
 \chapter{Abstract}
 
-Deep reinforcement learning has been getting more and more attention lately for ... . However, these methods still cannot be applied to any problem simply out of the box. This motivates us to take a closer look at specific details of how these methods were conceived in order to understand the failure cases \red{(better?)} and its limits. Specifically we look into Policy Gradients, one class of Deep Reinforcement Learning algorithms, and our efforts lead us to new ways of interpreting how these algorithm work and their relationship with other similar approaches and it sheds light on how these methods can be combined together.
 
-Next, we turn our attention to the set of tasks that we are more interested in, specifically locomotion, and investigate how we can setup our problems to make them more compatible with these methods. We look at task hyper-parameters that are usually neglected in the broader reinforcement learning community and investigate their effects.
+Deep reinforcement learning offers a flexible approach to learning physics-based locomotion. However, these methods are known to be sample-inefficient and the result usually has poor motion quality without the use of motion capture data. This work investigates two approaches that can make motions more realistic all the while having an equal or higher learning efficiency.
 
+Using characters with high torque limits in simulation can speed up learning, however, this can degrade the motion quality. We will propose a more appropriate way of enforcing torque limits on the simulated character without degrading the performance. Furthermore, able-bodied humans tend to have a fairly symmetric gait. We will explore methods that can incorporate this knowledge into the learning process which highly increase the motion quality.
 
 
 % This document provides brief instructions for using the \class{ubcdiss}

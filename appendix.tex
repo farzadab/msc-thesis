@@ -10,10 +10,40 @@
 
 % \section{Symmetric Locomotion}
 
+
+\section{\Cref{ch:envparams} Hyper-parameters}
+\label{sec:envparam_hyperparams}
+
+The following contains the hyper-parameters used for all of the experiments in \Cref{ch:envparams}. The code is also available under \url{https://github.com/farzadab/walking-benchmark/}.
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lc}
+        \toprule
+        Name & Description \\
+        \midrule
+        Policy LR & $3e^{-3}$\\
+        Value Network LR & $5e^{-3}$\\
+        Total Environment Steps & $6$ Million\\
+        Clipping Parameter ($\epsilon$) & $0.2$\\
+        Decay ($\gamma$) & $0.99$\\
+        GAE $\lambda$ & $0.95$ \\
+        Policy type & Fixed Diagonal Gaussian\\
+        Policy stdev & $\exp(-1)$\\
+        Network Size & 3 Layers of 256 nodes \\
+        Network Activations & ReLU \\
+        Max Grad Norm & 1\\
+        Optimization Batch Size & $128$ \\
+        PPO Optimization Steps & $10$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Hyper-parameters used in \Cref{ch:envparams}.}
+    \label{tab:envparam_hyperparams}
+\end{table}
+
 \section{Mirroring Functions}
 \label{sec:mirroring-functions}
 
-The mirroring functions, $\mathcal{M}_s$ and $\mathcal{M}_a$ as described in \autoref{sec:methods} are properties of the environment.  Consequently, the environment is responsible for providing the necessary information for policies to perform the mirroring operation on state and action.  Although the mirroring functions can be arbitrarily complex, we found that all the environments in \autoref{sec:environments} share a similar construction.  Using \textit{Walker3D} as an example, the method for deriving mirror functions are described in detail below.
+The mirroring functions, $\mathcal{M}_s$ and $\mathcal{M}_a$ as described in \Cref{sec:methods} are properties of the environment.  Consequently, the environment is responsible for providing the necessary information for policies to perform the mirroring operation on state and action.  Although the mirroring functions can be arbitrarily complex, we found that all the environments in \Cref{sec:environments} share a similar construction.  Using \textit{Walker3D} as an example, the method for deriving mirror functions are described in detail below.
 
 The \textit{Walker3D} character has a total of 21-DoF and each DoF is modeled as a one-dimensional hinge joint.  Furthermore, let the \textit{x}-axis be the forward direction and the \textit{z}-axis pointing up in the local coordinate frame of the character.  For mirroring purposes, the joints can be divided into three categories, common, opposite, and side.  The common categories contain joints that are unchanged by the mirroring function, such as $abdomen_y$.  In general, joints that rotate about the \textit{y}-axis should remain unchanged after mirroring.  The opposite categories contains joints that are mainly on the torso of the character and they need to be negated for mirroring.  In the case of \textit{Walker3D}, only $abdomen_x$ and $abdomen_z$ would fall under this category.  The side categories contains joints that are on the limbs.  Importantly, for each joint on one side there must be a corresponding joint on the other side; for instance, the right knee corresponds to left knee.  With the one-to-one mapping, $\mathcal{M}_a$ can simply interchange the applied torques for the respective joints on either side.  We found that it is more straight-forward if the joint rotation axes are flipped, except for axes aligned on the  \textit{y}-axis, for the left and right limbs.  Otherwise, additional negation operation need to be applied after interchanging left and right actions. 
 
@@ -22,7 +52,7 @@ $\mathcal{M}_s$ follows a similar pattern as described above.  For state informa
 \section{Phase Plots}
 \label{sec:phase-plots}
 
-Phase plots, \autoref{fig:phase-plots}, for the \textit{Walker2D} and \textit{Walker3D} tasks are generated from the run that produced the most symmetric gait for each method.  
+Phase plots, \Cref{fig:phase-plots}, for the \textit{Walker2D} and \textit{Walker3D} tasks are generated from the run that produced the most symmetric gait for each method.  
 
 \begin{figure}
   \centering
@@ -34,11 +64,11 @@ Phase plots, \autoref{fig:phase-plots}, for the \textit{Walker2D} and \textit{Wa
 \section{Alternate Symmetric Network Architecture}
 \label{sec:alternate-network}
 
-In \autoref{fig:net-architecture}, we presented a universal method for embedding any neural network into a symmetric policy.  The NET method effectively uses the same policy module twice with flipped inputs for $s$ and $M(s)$.  While this construction is relatively simple to implement, alternative symmetric policy constructions do exist.  In this section, we describe the construction used for NET-ALT in \autoref{fig:learning-curves}.
+In \Cref{fig:net-architecture}, we presented a universal method for embedding any neural network into a symmetric policy.  The NET method effectively uses the same policy module twice with flipped inputs for $s$ and $M(s)$.  While this construction is relatively simple to implement, alternative symmetric policy constructions do exist.  In this section, we describe the construction used for NET-ALT in \Cref{fig:learning-curves}.
 
 
 
-Recall that a symmetric policy is one that satisfies \autoref{eq:symmetric-policy}, along with the fact that our mirror functions (\autoref{sec:mirroring-functions}) essentially perform negation and swapping operation on the state and action vectors.  Let us then consider the individual layers of a neural network as matrix operations, in particular, before the application of non-linear activation functions.  The full matrix form of the first layer for $s$ and $\mathcal{M}_s(s)$ can be written as,
+Recall that a symmetric policy is one that satisfies \Cref{eq:symmetric-policy}, along with the fact that our mirror functions (\Cref{sec:mirroring-functions}) essentially perform negation and swapping operation on the state and action vectors.  Let us then consider the individual layers of a neural network as matrix operations, in particular, before the application of non-linear activation functions.  The full matrix form of the first layer for $s$ and $\mathcal{M}_s(s)$ can be written as,
 
 \begin{center}
 $\begin{bmatrix} W \\ X \\ Y \\ Z  \end{bmatrix} = (a_{ij})_{4\times4} \begin{bmatrix} C \\ O \\ R \\ L \end{bmatrix}$ and, $\begin{bmatrix} W \\ -X \\ Z \\ Y  \end{bmatrix} = (a_{ij})_{4\times4} \begin{bmatrix} C \\  -O \\  L \\ R \end{bmatrix}$.
@@ -65,6 +95,6 @@ To evaluate the effectiveness of phase-based mirroring, we ran an experiment for
 \begin{figure}
   \centering
   \includegraphics[width=0.9\columnwidth]{symmetry_figures/DeepMimic_curves.pdf}
-  \caption{Learning curves for the original \textit{DeepMimic} environment. BASE and \textit{Phase} corresponds to the symmetry enforcement methods in \autoref{fig:learning-curves}.}
+  \caption{Learning curves for the original \textit{DeepMimic} environment. BASE and \textit{Phase} corresponds to the symmetry enforcement methods in \Cref{fig:learning-curves}.}
   \label{fig:deepmimic-curves}
 \end{figure}
