@@ -8,7 +8,7 @@
 
 \ac{RL} emerges from the idea that we humans tend to learn about the world through interaction. We can observe the world around us and act in certain ways in order to achieve our goals and at the same time learn more about the world that we live in. \ac{RL} is a computational approach to learning from interactions with the final goal of maximizing a numerical reward signal \cite{rlbook}.
 
-This approach makes \ac{RL} applicable to a wide variety of application, but at the same time, this generality proves to be problematic as it yields many challenges. The learner is not told which actions are better or worse and it has to figure everything out itself using a weak reward signal. To make matters worse, the consequences of an action might not be immediately visible to the learner as they might be revealed only after a long duration of time.
+This approach makes \ac{RL} applicable to a wide variety of applications, but at the same time, this generality proves to be problematic as it yields many challenges. The learner is not told which actions are better or worse and it has to figure everything out itself using a weak reward signal. To make matters worse, the consequences of an action might not be immediately visible to the learner as they might be revealed only after a long duration of time.
 
 
 \subsection{Markov Decision Process}
@@ -30,27 +30,27 @@ Here, $\tau = (s_0, a_0, r_0, \dots, s_T)$ is known as a \textit{trajectory} and
     G(\tau) \doteq \sum_{t=0}^{T-1}\gamma^t{r({s}_t, {a}_t)}.
 \end{align*}
 
-Another important categorization of tasks is based on state and action spaces being discrete or continuous. In this article we will be focusing on tasks where both state and action spaces are continuous.
+Another important categorization of tasks is based on state and action spaces being discrete or continuous. Discrete spaces are generally known to have more well defined solutions, namely tabular algorithms, than the continuous spaces. In this article we will be focusing on tasks where both state and action spaces are continuous.
 
 \section{Policy Gradient Methods}
 \label{sec:background_pg}
 
-Over the years many algorithms have been proposed for solving \ac{RL} tasks and each are useful in certain scenarios. This section will explain the \ac{PPO} algorithm which we will use in the following chapters. For a discussion of other existing methods please refer to \cite{rl_survey}.
+Over the years many algorithms have been proposed for solving \ac{RL} tasks and each are useful in certain scenarios. This section will explain the \ac{PPO} algorithm which is used in the following chapters. For a discussion of other existing methods please refer to \cite{rl_survey}.
 
 \ac{PPO} belongs to the policy gradient methods class which have been show to work well on continuous tasks. The idea behind the \ac{PG} algorithm is pretty straight-forward. In short, it tries to optimize the average return by (approximately) computing its gradient and taking a gradient ascent step in order to increase it.
 % However, doing this naively is not possible. and that is where the algorithm works its magic. Even with such a high-level description, we might be able to guess some of the problems that can arise, such as: how to find the global optima, and are the gradients well-behaved or not. We will get back to these problems soon enough, but let us see how the algorithm works first.
 
-In order to optimize the objective \ac{PG} directly optimizes the policy $\pi$. One of the underlying assumption of \ac{PG} is that the policy should be stochastic rather than deterministic for this algorithm to work, though this assumption can be relaxed \cite{ddpg}. Furthermore, we assume that this stochastic policy is parametrized by parameters $\theta$ and therefore the algorithm's job is to find the optimal parameters $\theta^*$ that maximize \Cref{eq:return}. Now, in order to maximize the objective, we need to know the gradient $\nabla_\theta J(\theta)$. Since computing this gradient requires knowledge about the dynamics of the \ac{MDP}, \ac{PG} approximates it by using the REINFORCE trick \cite{williams1992simple}:
+In order to optimize the objective, \ac{PG} directly optimizes the policy $\pi$. One of the underlying assumption of \ac{PG} is that the policy should be stochastic rather than deterministic for this algorithm to work, though this assumption can be relaxed \cite{ddpg}. Furthermore, we assume that this stochastic policy is parametrized by parameters $\theta$ and therefore the algorithm's job is to find the optimal parameters $\theta^*$ that maximize \Cref{eq:return}. Now, in order to maximize the objective, we need to know the gradient $\nabla_\theta J(\theta)$. Since computing this gradient requires knowledge about the dynamics of the \ac{MDP}, \ac{PG} approximates it by using the REINFORCE trick \cite{williams1992simple}:
 
 \begin{align}
-    \label{eq:obj_grad}
     \nabla_\theta J(\theta) &= \nabla_\theta \int G(\tau) p_\theta(\tau) \\
     &= \int G(\tau) \nabla_\theta p_\theta(\tau)\\
     &= \int G(\tau) p_\theta(\tau) \nabla_\theta \log p_\theta(\tau)\\
     &= \mathbb{E}_{\tau \sim p_\theta} \left[ G(\tau) \nabla_\theta \log p_\theta(\tau) \right]
+    \label{eq:obj_grad}
 \end{align}
 
-We can switch the integral and the gradient operator under some conditions that we will explore later on. The equality is based on the following identity:
+We can switch the integral and the gradient operator if the policy is differentiable everywhere. The equality is based on the following identity:
 
 \begin{align*}
     p_\theta(\tau)\nabla_\theta \log p_\theta(\tau) = p_\theta(\tau) \frac{\nabla_\theta p_\theta(\tau)}{p_\theta(\tau)} = \nabla_\theta p_\theta(\tau)
@@ -64,14 +64,14 @@ Next, we can expand $\nabla_\theta \log p_\theta$:
     &= \sum_{t=1}^T \nabla_\theta \log \pi_\theta(a_t|s_t)
 \end{align}
 
-Substituting this back into \Cref{eq:obj_grad} we arrive at the following expression. For simplicity the discount factor, $\gamma$, has been set to one:
+The extra terms are independent of $\theta$ and therefore they do not contribute to the gradient. Substituting this back into \Cref{eq:obj_grad} we arrive at the following expression. For simplicity the discount factor, $\gamma$, has been set to one:
 
 \begin{align}
     \nabla_\theta J(\theta) &= \mathbb{E}_{\tau \sim p_\theta} \left[ G(\tau) \sum_{t=1}^T \nabla_\theta \log \pi_\theta(a_t|s_t) \right]\\
     &= \mathbb{E}_{\tau \sim p_\theta} \left[ \left( \sum_{t=1}^T r_t \right) \left( \sum_{t=1}^T \nabla_\theta \log \pi_\theta(a_t|s_t) \right) \right]
 \end{align}
 
-Using this formulation we can use Monte Carlo sampling \red{cite} to approximately compute the gradient in order to iteratively improve the policy:
+Using this formulation we can use Monte Carlo sampling \cite{SHAPIRO2003353} to approximately compute the gradient in order to iteratively improve the policy:
 
 
 \begin{align}
@@ -80,7 +80,7 @@ Using this formulation we can use Monte Carlo sampling \red{cite} to approximate
 
 Where, $\tau_i = (s_{i,1}, a_{i,1}, r_{i,1}, \dots, s_{i,T})$ are sample trajectories from $p_\theta$. With this we arrive at the REINFORCE algorithm \cite{williams1992simple}.
 
-Unfortunately, this is not a good estimator in practice as its variance can be quite high. There are multiple tricks that try to alleviate this problem. The simplest is to increase the number of sampled trajectories $N$, however, this also makes the algorithm less efficient. One observation is that a reward time step $t$ only causally depends on actions that were made until time $t$ and are independent from decisions that are made afterwards, or in other words, action $a_t$ can only be responsible for the cost to go from time $t$ forward. With some abuse of notation we can write:
+Unfortunately, this is not a good estimator in practice as its variance can be quite high. There are multiple tricks that try to alleviate this problem. The simplest is to increase the number of sampled trajectories $N$, however, this also makes the algorithm less efficient. One observation is that a reward time step $t$ only causally depends on actions that were made until time $t$ and are independent from decisions that are made afterwards. In other words, action $a_t$ can only be responsible for the cost to go from time $t$ forward. With some abuse of notation we can write:
 \begin{align}
     \nabla_\theta J(\theta) &\approx \mathbb{E}_{\tau \sim p_\theta} \left[ \sum_{t=1}^T \left( \nabla_\theta \log \pi_\theta(a_t|s_t)  \sum_{t'=t}^T r_t \right) \right]\\
     &= \mathbb{E}_{s_t \sim p_\theta} \left[T \nabla_\theta \log \pi_\theta(a_t|s_t)  \sum_{t'=t}^T r_t \right],
@@ -91,3 +91,20 @@ Another trick is to use a learned value function $\hat{V}(s)$ also known as a \t
 \begin{align}
     \nabla_\theta J(\theta) &\approx \mathbb{E}_{s_t \sim p_\theta} \left[T \nabla_\theta \log \pi_\theta(a_t|s_t) \left( \sum_{t'=t}^T r_t - \hat{V}(s_t) \right) \right].
 \end{align}
+
+\section{Proximal Policy Optimization (PPO)}
+
+Even with the tricks mentioned above, \ac{PG} is difficult to get working in practice.
+This problem is partly attributed to destructive updates, where sometimes during training, a bad update makes the performance suddenly drop rapidly and it takes a long time for the agent to recover.
+The \ac{TRPO} algorithm~\cite{trpo} was introduced in order to solve this problem.
+The authors claim that the destructive updates happen because the algorithm makes large updates based on an optimistic guess.
+Therefore \ac{TRPO} only allows the policy to be updated within a trusted region.
+In other words, it is a step-size control mechanism.
+
+Later on, \ac{PPO} was introduced as a faster alternative to \ac{TRPO}. The algorithm slightly changes the \ac{PG} update rule as follows:
+\begin{align}
+    L_{CLIP} = \mathbb{E}_{s_t \sim p_\theta} \left[ \min \left(r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t\right) \right],
+\end{align}
+where the probability ratio is defined as $r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)}$ and the advantage is just a shorthand for $\hat{A}_t = \sum_{t'=t}^T r_t - \hat{V}(s_t)$. The hyper-parameter $\epsilon$ controls the step-size and it commonly takes on a value in the range $[0.1,0.2]$. For more information please refer to \cite{ppo}.
+
+Intuitively, by clipping the objective, the flow of gradient is blocked if it tries to push the current policy outside of the interval $[1-\epsilon, 1+\epsilon]$ around the old policy. Therefore, \ac{PPO} has been advertised as enforcing a trust-region on the updates.  Although, the validity of this claim has recently been challenged~\cite{truly_pg}, the fact remains that with the right hyper-parameter setting \ac{PPO} is still one of the best model-free algorithms in practice.
