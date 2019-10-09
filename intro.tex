@@ -4,26 +4,26 @@
 \chapter{Introduction}
 \label{ch:Introduction}
 
-We can gracefully move around without the need to consciously think about how to coordinate our muscles while walking on uneven terrain. Our level of mastery over this basic skill makes it seem so mundane that most of us never think much of it.
-Yet, we are still unable to create controllers that replicate what a newborn horse can do after two hours of being born. This is not, however, due to a lack of effort as the problem of locomotion has been studied by many researchers in different fields.
+Humans can gracefully move around without consciously thinking about how to coordinate our muscles. Our level of mastery over this basic skill makes it seem so mundane that most of us never think much of it.
+Yet, we are still unable to create controllers that replicate what a newborn horse can do after two hours. This is not, however, due to a lack of effort, as the problem of locomotion has been studied in many fields.
 
-Computer graphics got interested in locomotion in order to bring characters to life. We can divide motion generation techniques into two categories: \textit{kinematic} and \textit{dynamic} (physics-based) methods.
-The kinematic approach tries to produce the desired motion by directly manipulating the object positions and joint angles as well as their respective velocities.
-However, modifying these values directly can lead to strange motions that seem unrealistic. One major reason for this is that the resulting motions can sometimes break the laws of physics. We as humans are adept at picking up such inconsistencies.
+Computer graphics is interested in locomotion in order to bring virtual characters to life. We can divide motion generation techniques into two categories: \textit{kinematic} and \textit{dynamic} (physics-based) methods.
+The kinematic approach produces the desired motion by directly manipulating the object positions and joint angles as well as their respective velocities.
+However, modifying these values directly can lead to unrealistic motions. One major reason for this is that the resulting motions can break the laws of physics. As humans, we are adept at picking up such inconsistencies.
 An intuitive approach to fixing this problem is to use the laws of physics as constraints. This method is known as physics-based animation.
 
 
-Physics-based animation first requires us to create accurate models of objects and articulated bodies by taking into account their parameters such as mass, dimensions, joint types, torque limits, and so on. Then we can apply well studied Newtonian laws to simulate the interactions between these objects in time. Finally, the question becomes, how do we control our characters in order to generate the movements that we desire.
+Physics-based animation first requires us to create accurate models of objects and articulated bodies by taking into account their parameters such as masses, dimensions, joint types, torque limits, and so on. We can then apply well studied Newtonian laws to simulate the interactions between these objects. Finally, the question then becomes that of, how we can provide the control to generate movements that we desire.
 
-This question has led many researchers including me to go down a seemingly unending path.
-Since 1985 when physics was first used for animation~\cite{Armstrong1985}, people have used many different approaches for motion generation, ranging from huge optimization problems constrained by the laws of physics that generated motions for the famous Luxo character~\cite{spacetime_constraints_luxo}, to the highly structured \acs{FSM} based approaches~\cite{Yin07} and the beloved CMA algorithm~\cite{Hansen06}. 
+This question has led many researchers to tackle this challenging problem.
+Since 1985 when physics was first used for animation~\cite{Armstrong1985}, many different approaches for motion generation have been proposed. These range from huge optimization problems constrained by the laws of physics that generated motions for a Luxo character~\cite{spacetime_constraints_luxo}, to the highly structured \acs{FSM} based approaches~\cite{Yin07} and the beloved CMA algorithm~\cite{Hansen06}. 
 Recently, \ac{RL} has emerged as a promising approach to learning locomotion skills and it holds significant potential because of its flexibility.
-However, there still remains a compelling need to improve learning efficiency and motion quality in order for \ac{RL} to become a widely-adopted animation tool which is the goal of this thesis.
+However, there remains a compelling need to improve learning efficiency and motion quality for \ac{RL} to become a widely-adopted animation tool.
 One way of going about this problem is by incorporating expert knowledge, such as left-right symmetry, into the model.
 
 %
 
-\ac{RL} for locomotion is generally formulated as a control task where the agent can manipulate the joint motors individually at each time step to achieve a certain goal indicated by a reward signal. The generality of the \ac{RL} formulation makes it applicable to a wide variety of settings. Recent successes of \ac{RL} in animation and machine learning show the ability to produce robust learned locomotion for simulated humans, animals, and imaginary legged creatures.
+\ac{RL} for locomotion is generally formulated as a control task where the agent can manipulate joint motors individually at each time step to achieve certain goals that are modelled by a reward signal. The generality of the \ac{RL} formulation makes it applicable to a wide variety of settings. Recent success of \ac{RL} in animation and machine learning shows the ability to produce robust learned locomotion for simulated humans, animals, and imaginary legged creatures.
 
 
 % From the first attempts by using key-framing \red{cite} to the costly motion capture studios, many people have spent hours upon hours trying to make characters move.
@@ -35,32 +35,34 @@ One way of going about this problem is by incorporating expert knowledge, such a
 
 % \red{From one perspective, this can be seen as substituting animator time or the price of a capturing motion capture data with compute resources, but we should be aware that though the latter might be cheap, it is not infinite.}
 
-The classical control theory studies almost the exact same problem as \ac{RL} but from a different perspective. Control theory usually assumes complete knowledge about the system that is under the investigation and its environment.
-Even unknown events like disturbances and noise are modeled explicitly and extra assumptions about their nature are made in this framework. This way, a control algorithm, such as LQR, can solve the task at hand at first try very efficiently.
-However, as the task becomes more complex or the number of unobserved parameters increases this approach can fail to deliver any solution.
+Classical control theory studies almost the same problem as \ac{RL} but from a different perspective. Control theory usually assumes complete knowledge about the system that is under the investigation, including the environment.
+Disturbances and uncertainties are modelled explicitly and extra assumptions about their nature are made in this framework. A control algorithm, such as LQR, can solve the task at hand  very efficiently.
+% However, as soon as 
+However, this approach can fail to deliver any solution for non-linear systems.
 
-\ac{RL} has been moving further and further away in the opposite direction with model-free methods which attempt to make little to no assumption about the task at hand.
-This is at direct odds with the classical control theory perspective and it might be responsible for why we still talk about \ac{RL} and control theory as different disciplines.
+\ac{RL} has been moving in the opposite direction with model-free methods that attempt to make little to no assumption about the task at hand.
+This is at odds with the classical control theory perspective and it reflects why we still talk about \ac{RL} and control theory as different disciplines.
 This separation from concrete models allows \ac{RL} to solve problems at a higher abstraction level than control theory does.
 This can lead to a universal algorithm that can solve many sorts of problems and is highly flexible.
 % \red{mention AGI?}
 However, this generality comes at a price. These algorithms are generally known to be inefficient as they require countless interactions with the system that is under investigation.
-To make this more concrete, it is common for a task to be considered solved after ten million time-steps which translates to roughly fifty hours of non-stop interaction with the character or the robot.
+To make this more concrete, it is common for a task to be considered solved after ten million time-steps which translates to more than one hundred days of non-stop interaction with the character or the robot.
 
-Furthermore, encoding the properties of a desirable motion through the reward signal can prove highly challenging and can fail in un-intuitive ways.
+Furthermore, encoding the properties of a desirable motion through the reward signal can prove highly challenging and can fail in unintuitive ways.
 Common reward functions for walking and running are primarily based on forward progress or a fixed root velocity.
-Surprisingly, the agent can produce a walk like behavior given little to no extra knowledge.
-However, the motions are usually far from appealing. Progress being the primary reward signal, the agent tends to learn peculiar motions with the hands flailing around in the air and the head fixed in unnatural positions.
-Even characters without an upper body commonly find irregular gaits, such as the fencing gait, that keeps one foot in front of the other without switching.
+Surprisingly, the agent can produce a walk like behaviour, given little to no extra knowledge.
+However, the motions are usually far from appealing.
+Because progress is the primary reward signal, the agent tends to learn peculiar motions with the hands flailing around in the air and the head fixed in unnatural positions.
+Even characters without an upper body commonly find irregular gaits, such as a fencing gait that keeps one foot in front of the other.
 
-Further engineering the reward
+Further engineering of the reward
 %, such as including an energy minimization objective,
-can alleviate some of the problems to some extent, but it can also produce other issues that are difficult to debug.
-Specifically, a common argument is that even though different styles of walking exist, humans and other animals tend to choose the most energy efficient one.
-Therefore a remedy to the problem raised above is to use an energy expenditure cost in the reward function, which has been done.
-However, it has been argued that the weight of this term tends to be low in practice for \ac{RL} environments since this term can make learning difficult as the exploration is also dependent on the reward signal \cite{Yu-SIGGRAPH-2018}.
+can alleviate some of the problems, but it can also produce other issues that are difficult to debug.
+Specifically, a common argument is that even though different styles of walking exist, humans and other animals tend to choose the most energy-efficient one.
+Therefore a common remedy to the problem raised above is to use an energy expenditure cost in the reward function.
+However, it has been argued that \ac{RL} practitioners tend to set the weight of this term tends to be low enough that it can be ignored since this term can make learning difficult~\cite{Yu-SIGGRAPH-2018}.
 % \Cref{ch:envparams} proposes an alternative to this approach that does not suffer from the same issue.
 
-This motivates us to look at other ways to augment the traditional \ac{RL} formulation with prior knowledge from the experts in order to gain more natural looking motions. In this work we specifically explore two methods that can help gain higher quality motion as well as faster learning. In \Cref{ch:envparams}, we will look at the effects of using more realistic torque limits on the learning process. This can be seen as an alternative to the problem caused by the energy expenditure cost as discussed above. We will show that using realistic motions from the start can hinder the training process to the point that the agent never learns to move in the allotted time period. However, we can overcome this by using a simple curriculum schedule.
+This motivates us to look at other ways to augment the traditional \ac{RL} formulation with prior knowledge from the experts in order to gain more natural-looking motions. In this work, we explore two methods that can help achieve higher quality motion as well as faster learning. In \Cref{ch:envparams}, we will look at the effects of modifying the torque limits on the learning process. This can be seen as an alternative to the problem caused by the energy expenditure cost as discussed above. We will show that using realistic torque limits from the start can hinder the training process to the point that the agent never learns to move in the allotted time. We can overcome this by using a simple curriculum schedule.
 
-Next, in \Cref{ch:symmetry}, we will look at a big contributor to the poor quality in the motions that are generated via the \ac{RL} paradigm, namely, asymmetric walking patterns. The left and the right sides of the human body are fairly symmetric. Consequently, walking patterns of healthy humans are generally quite symmetric. Symmetric motions are also perceived to be more attractive, e.g., for dance \cite{danceSymmetry}, and gait symmetry is seen an as a desirable outcome for physiological manipulation \cite{robinson1987use}. However, \ac{RL} agents commonly find asymmetric gait patterns such as fencing, which leads with one primary foot and tends not to switch the leading foot. We will explore four different methods of incorporating symmetry into the \ac{RL} paradigm and discuss their advantages and drawbacks. We then compare their motion quality as well as the degree to which they achieve true gait symmetry in practice.
+In \Cref{ch:symmetry}, we will look at a big contributor to the poor quality in the motions that are generated via the \ac{RL} paradigm, namely, asymmetric walking patterns. The left and the right sides of the human body are approximately symmetric. Consequently, walking patterns of healthy humans are generally quite symmetric as well. Symmetric motions are also perceived to be more attractive, e.g., for dance \cite{danceSymmetry}, and gait symmetry is seen as a desirable outcome for physiological manipulation \cite{robinson1987use}. However, \ac{RL} agents commonly find asymmetric gait patterns such as fencing, which leads with one primary foot and tends not to switch the leading foot. We explore four methods for incorporating symmetry into the \ac{RL} paradigm and discuss their advantages and drawbacks. We then compare their motion quality as well as the degree to which they achieve gait symmetry in practice.

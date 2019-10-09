@@ -4,10 +4,13 @@
 \chapter{Abstract}
 
 
-Deep reinforcement learning offers a flexible approach to learning physics-based locomotion. However, these methods are known to be sample-inefficient and the result usually has poor motion quality without the use of motion capture data. This work investigates two approaches that can make motions more realistic all the while having an equal or higher learning efficiency.
+Deep reinforcement learning offers a flexible approach to learning physics-based locomotion. However, these methods are sample-inefficient and the result usually has poor motion quality when learned without the help of motion capture data.
+This work investigates two approaches that can make motions more realistic while having equal or higher learning efficiency.
 
-Using characters with high torque limits in simulation can speed up learning, however, this can degrade the motion quality. We will propose a more appropriate way of enforcing torque limits on the simulated character without degrading the performance. Furthermore, able-bodied humans tend to have a fairly symmetric gait. We will explore methods that can incorporate this knowledge into the learning process which highly increase the motion quality.
+First, we propose a way of enforcing torque limits on the simulated character without degrading the performance. Torque limits indicate how strong a character is and therefore has implications on how realistic the resulting motion looks. We show that using realistic limits from the beginning can hinder training performance. Our method uses a curriculum learning approach in which the agent is gradually faced with more difficult tasks. This way the resulting motion becomes more realistic without sacrificing performance.
 
+
+Second, we explore methods that can incorporate left-right symmetry into the learning process which highly increases the motion quality. Gait symmetry is an indicator of health and asymmetric motion is easily noticeable by human observers. We compare two novel approaches as well as two existing methods of incorporating symmetry in the reinforcement learning framework. We also introduce a new metric for evaluating gait symmetry and confirm that the resulting motion has higher motion quality.
 
 % This document provides brief instructions for using the \class{ubcdiss}
 % class to write a \acs{UBC}-conformant dissertation in \LaTeX.  This

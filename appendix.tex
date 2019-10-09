@@ -1,4 +1,6 @@
+\setcounter{chapter}{-1}
 \chapter{Supporting Materials}
+\renewcommand{\thechapter}{A}
 
 % This would be any supporting material not central to the dissertation.
 % For example:
@@ -11,7 +13,8 @@
 % \section{Symmetric Locomotion}
 
 
-\section{\Cref{ch:envparams} Hyper-parameters}
+% \section{\Cref{ch:envparams} Hyper-parameters}
+\section{Chapter 4 Hyper-parameters}
 \label{sec:envparam_hyperparams}
 
 The following contains the hyper-parameters used for all of the experiments in \Cref{ch:envparams}. The code is also available under \url{https://github.com/farzadab/walking-benchmark/}.
@@ -45,21 +48,10 @@ The following contains the hyper-parameters used for all of the experiments in \
 
 The mirroring functions, $\mathcal{M}_s$ and $\mathcal{M}_a$ as described in \Cref{sec:methods} are properties of the environment.  Consequently, the environment is responsible for providing the necessary information for policies to perform the mirroring operation on state and action.  Although the mirroring functions can be arbitrarily complex, we found that all the environments in \Cref{sec:environments} share a similar construction.  Using \textit{Walker3D} as an example, the method for deriving mirror functions are described in detail below.
 
-The \textit{Walker3D} character has a total of 21-DoF and each DoF is modeled as a one-dimensional hinge joint.  Furthermore, let the \textit{x}-axis be the forward direction and the \textit{z}-axis pointing up in the local coordinate frame of the character.  For mirroring purposes, the joints can be divided into three categories, common, opposite, and side.  The common categories contain joints that are unchanged by the mirroring function, such as $abdomen_y$.  In general, joints that rotate about the \textit{y}-axis should remain unchanged after mirroring.  The opposite categories contains joints that are mainly on the torso of the character and they need to be negated for mirroring.  In the case of \textit{Walker3D}, only $abdomen_x$ and $abdomen_z$ would fall under this category.  The side categories contains joints that are on the limbs.  Importantly, for each joint on one side there must be a corresponding joint on the other side; for instance, the right knee corresponds to left knee.  With the one-to-one mapping, $\mathcal{M}_a$ can simply interchange the applied torques for the respective joints on either side.  We found that it is more straight-forward if the joint rotation axes are flipped, except for axes aligned on the  \textit{y}-axis, for the left and right limbs.  Otherwise, additional negation operation need to be applied after interchanging left and right actions. 
+The \textit{Walker3D} character has a total of 21-DoF and each DoF is modelled as a one-dimensional hinge joint.  Furthermore, let the \textit{x}-axis be the forward direction and the \textit{z}-axis pointing up in the local coordinate frame of the character.  For mirroring purposes, the joints can be divided into three categories, common, opposite, and side.  The common categories contain joints that are unchanged by the mirroring function, such as $abdomen_y$.  In general, joints that rotate about the \textit{y}-axis should remain unchanged after mirroring.  The opposite categories contain joints that are mainly on the torso of the character and they need to be negated for mirroring.  In the case of \textit{Walker3D}, only $abdomen_x$ and $abdomen_z$ would fall under this category.  The side categories contain joints that are on the limbs.  Importantly, for each joint on one side, there must be a corresponding joint on the other side; for instance, the right knee corresponds to the left knee.  With the one-to-one mapping, $\mathcal{M}_a$ can simply interchange the applied torques for the respective joints on either side.  We found that it is more straightforward if the joint rotation axes are flipped, except for axes aligned on the  \textit{y}-axis, for the left and right limbs.  Otherwise, additional negation operations need to be applied after interchanging left and right actions. 
 
-$\mathcal{M}_s$ follows a similar pattern as described above.  For state information that are derived from the character, such as joint angles and angular velocities, the mirrored counterpart would have negated and interchanged values.  In addition, the environment may provide additional information, such as character orientation, velocity, and target location in character root space, as in \textit{Walker3D}.  For vector-valued information, such as velocity and target location, the values along the $y$-axis should be negated; for orientations, values representing roll and yaw should be negated.
+$\mathcal{M}_s$ follows a similar pattern as described above.  For state information that is derived from the character, such as joint angles and angular velocities, the mirrored counterpart would have negated and interchanged values.  Besides, the environment may provide additional information, such as character orientation, velocity, and target location in character root space, as in \textit{Walker3D}.  For vector-valued information, such as velocity and target location, the values along the $y$-axis should be negated; for orientations, values representing roll and yaw should be negated.
 
-\section{Phase Plots}
-\label{sec:phase-plots}
-
-Phase plots, \Cref{fig:phase-plots}, for the \textit{Walker2D} and \textit{Walker3D} tasks are generated from the run that produced the most symmetric gait for each method.  
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.70\columnwidth]{symmetry_figures/phase_plots.pdf}
-  \caption{Phase Plots.  The green curve is for the left hip flexion, and red for the right side.  The more symmetric the motion, the more aligned are the curves.}
-  \label{fig:phase-plots}
-\end{figure}
 
 \section{Alternate Symmetric Network Architecture}
 \label{sec:alternate-network}
@@ -85,16 +77,16 @@ $(a_{ij})_{4\times4} = \begin{bmatrix}
 \end{bmatrix}$.
 \end{center}
 
-In order to maintain the symmetric policy constraint, the activation function applied to the negation portion, $O$, must be an odd function such as \textit{tanh} or \textit{softsign}.  A similar procedure can be followed for intermediate and output layers, as long as the sizes for each of the portions are correctly maintained.  Finally, a symmetric policy network can be constructed by stacking symmetric layers.
+To maintain the symmetric policy constraint, the activation function applied to the negation portion, $O$, must be an odd function such as \textit{tanh} or \textit{softsign}.  A similar procedure can be followed for intermediate and output layers, as long as the sizes for each of the portions are correctly maintained.  Finally, a symmetric policy network can be constructed by stacking symmetric layers.
 
 \section{Symmetry in DeepMimic Environment}
 \label{sec:deepmimic-results}
 
-To evaluate the effectiveness of phase-based mirroring, we ran an experiment for the original DeepMimic environment \citep{2018-TOG-deepMimic} in additional to the \textit{Cassie} environment.  In both cases, our data shows that phase-based mirroring does indeed make the learning faster.  However, in the case of \textit{DeepMimic}, the difference in final return is small between BASE and PHASE and only a minor difference can be gleamed from the video.
+To evaluate the effectiveness of phase-based mirroring, we ran an experiment for the original DeepMimic environment \citep{2018-TOG-deepMimic} in additional to the \textit{Cassie} environment.  In both cases, our data shows that phase-based mirroring does indeed make the learning faster.  However, in the case of \textit{DeepMimic}, the difference in final return is small between BASE and PHASE and only a minor difference can be seen from the video.
 
 \begin{figure}
   \centering
   \includegraphics[width=0.9\columnwidth]{symmetry_figures/DeepMimic_curves.pdf}
-  \caption{Learning curves for the original \textit{DeepMimic} environment. BASE and \textit{Phase} corresponds to the symmetry enforcement methods in \Cref{fig:learning-curves}.}
+  \caption{Learning curves for the original \textit{DeepMimic} environment. BASE and \textit{Phase} corresponds to the symmetry enforcement methods in \Cref{fig:learning-curves}}
   \label{fig:deepmimic-curves}
 \end{figure}

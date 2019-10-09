@@ -2,7 +2,7 @@
 \label{ch:relatedwork}
 
 
-Locomotion in humans and other animals is a long-standing problem. Different aspects of this problem have been a subject of study in numerous fields for decades, such as computer graphics, robotics, bio-mechanics, control, and machine learning. In this work, however, we will be focusing on the results coming from the computer graphics community and to some extent the machine learning community.
+Locomotion in humans and other animals is a long-standing problem. Different aspects of this problem have been the subject of study in numerous fields for decades, such as computer graphics, robotics, biomechanics, control, and more recently machine learning. In this work, however, we will be focusing on the results from computer graphics and to a more limited extent, the machine learning community.
 % More specifically, this article is concerned with learning locomotion skills for physics-based character animation.
 
 
@@ -12,41 +12,39 @@ Locomotion in humans and other animals is a long-standing problem. Different asp
 \section{Motion Symmetry}
 Motion symmetry has been a topic of interest for many years in the study of human motion and movement biomechanics. 
 Symmetric motions are perceived to be more attractive, e.g., for dance~\cite{danceSymmetry},
-and gait symmetry is seen an as a desirable outcome for physiological manipulation~\cite{robinson1987use}.
+and gait symmetry is seen as a desirable outcome for physiological manipulation~\cite{robinson1987use}.
 While symmetry is a common assumption in the study of gait and posture, 
 individual gaits often do exhibit asymmetries due to various possible functional causes~\cite{seelet}.
 We refer the reader to a past review article~\cite{SADEGHI200034} for insights
 into the degree of symmetry of lower limbs movement during able-bodied gait
-and the potential influence of limb dominance on the motion symmetry of the lower extremities.
+and the potential influence of limb dominance on the motion symmetry of the lower extremities
 and human gaits~\cite{riskowski}.
 It is also not obvious how to best quantify 
 the asymmetry of human gaits, and thus specific symmetry metrics have been
 proposed~\cite{symmetry_measures,symmetry_phase_portrait}.
 
-\section{Energy-Efficient Locomotion}
-\red{TODO if time permits}
+% \section{Energy-Efficient Locomotion}
+% \red{TODO if time permits}
 
 
 \section{Kinematic Locomotion}
 
-One of the earliest approaches to making characters move, that is still practiced today, is key-framing. In this technique the animator has to decide the character position and joint orientations for each frame, often using computer assisted software. However, this approach is time consuming and requires a highly skilled user. Motion capture studios were created as an alternative to this approach, but they require expensive equipment and are constrained by the confines of the studio. Much work has been put into re-using the already captured motions using techniques such as Motion Graphs \cite{Kovar:2002:MG:566570.566605}. Recent approaches use neural networks to learn kinematic motions that can respond to a directional command from the user as well as height variation, such as Phase-Functioned Neural Networks  \cite{PFNN} and Mode-Adaptive Neural Networks \cite{MANN}.
+Key-framing is a common approach to making characters move. In this technique the animator has to decide the character position and joint orientations for each frame, often using computer-assisted software. However, this approach is time-consuming and requires a highly skilled user. The use of motion capture systems is an alternative approach, but in the past, this has required expensive equipment and is constrained by the confines of the studio. Much work has been put into reusing captured motions using techniques such as Motion Graphs \cite{Kovar:2002:MG:566570.566605}. Recent approaches, such as Phase-Functioned Neural Networks  \cite{PFNN} and Mode-Adaptive Neural Networks \cite{MANN}, use neural networks to learn kinematic models. They can act based on a directional command from the user and can respond to terrain height variations.
 
-Key-framing relies heavily on the mental biases of the animator and conceptually its the simplest way of incorporating all forms of expert knowledge into the resulting motion including energy efficiency and symmetry.
-It is also common in kinematic-based approaches to locomotion, e.g.,~\cite{bruderlin,HoldenPFNN}, to mirror all the available motion data in order to double the effective size of the data set, and to reflect the often-symmetric nature of human locomotion.
-Furthermore as kinematic methods are based on motion capture data, they are inherently biased towards the way that humans tend to move.
+Key-framing relies heavily on the mental biases and knowledge of the animator. It is therefore perhaps the simplest way of incorporating all forms of expert knowledge into the resulting motion, including energy efficiency and symmetry.
+It is also common in kinematic-based approaches to mirror all the available motion data in order to double the effective size of the dataset and to reflect the often-symmetric nature of human locomotion, e.g.,~\cite{bruderlin,HoldenPFNN}.
+% Furthermore, as kinematic methods are based on motion capture data, they are inherently biased towards the way that humans tend to move.
 
 
 
 
 \section{Physics-Based Locomotion}
 
-
-% 
-The robust control of physics-based character locomotion has been a long-standing challenge
+The robust control of physics-based character locomotion is a long-standing challenge
 for character animation. We refer the reader to a survey paper for a detailed history~\cite{STAR2012}.  
 An early and enduring approach to controller design has been to structure control policies around finite state
 machines (FSMs) and feedback rules that use a simplified abstract model or feedback law.  These general
-ideas have been applied to human athletics and running~\cite{Hodgins95} and a rich variety of walking
+ideas have been applied to human athletics, running~\cite{Hodgins95}, and a rich variety of walking
 styles~\cite{Yin07,Coros10,LeeYS10}. Many controllers developed for physics-based animation
 further use optimization methods to improve controllers developed around an FSM-structure, or use an FSM to 
 define phase-dependent objectives for an inverse dynamics optimization to be solved at each time step.
@@ -64,11 +62,11 @@ The trajectory optimization-based methods also commonly assume motion symmetry w
 More recently, locomotion synthesis has attracted significant
 attention from the reinforcement learning (RL) community, where the OpenAI Gym tasks have 
 become a popular RL benchmark~\cite{ref:OpenAI-Gym}. In this context, symmetry constraints are commonly 
-not imposed and the torque limits are unrealistic. As a consequence, the resulting motions are often idiosyncratic and have noticable asymmetries.
-Further work extends these efforts in a variety of ways, including the traversing challenging terrains~\cite{ref:deepmindParkour}.
-More realistic and dynamic motions can be achieved with the help of motion-capture clips~\cite{2017-TOG-deepLoco,2018-TOG-deepMimic} and these use what in \Cref{ch:symmetry} is referred to as the PHASE symmetry method with the goal of more efficient learning, although with
-no robust documented experiments to verify the efficiency gains.
-The efficient learning of controllers capable of producing high-quality motion for realistic-strength characters remains
+not imposed and the torque limits are unrealistic. As a consequence, the resulting motions are often idiosyncratic and have noticeable asymmetries.
+Further work extends these efforts in a variety of ways, including traversing challenging terrains~\cite{ref:deepmindParkour}.
+More realistic and dynamic motions can be achieved with the help of motion-capture clips~\cite{2017-TOG-deepLoco,2018-TOG-deepMimic} and these use what in \Cref{ch:symmetry} is referred to as the PHASE symmetry method, with the goal of more efficient learning. \cite{2016-TOG-controlGraphs} uses a variation of PHASE in which individual strides (half steps) are mirrored and concatenated to generate symmetric reference motions.
+However, there exist no robust documented experiments to verify efficiency gains.
+The efficient learning of controllers that are capable of producing high-quality motion for realistic-strength characters remains
 a challenging problem in the absence of motion capture data. Recent work makes
 progress on this problem using RL with a combination of energy optimization, learning curriculum, and 
 an auxiliary motion symmetry loss~\cite{Yu-SIGGRAPH-2018}, which we shall refer to as the LOSS method.
@@ -95,5 +93,5 @@ an auxiliary motion symmetry loss~\cite{Yu-SIGGRAPH-2018}, which we shall refer 
 
 
 
-\section{Curriculum Learning}
-\red{TODO if time permits}
+% \section{Curriculum Learning}
+% \red{TODO if time permits}

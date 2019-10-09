@@ -54,16 +54,18 @@
 %% NFSS font specification (New Font Selection Scheme)
 \usepackage{times,mathptmx,courier}
 \usepackage[scaled=.92]{helvet}
-\usepackage{amsmath}
-\usepackage{unicode-math}
-\usepackage{amssymb}
+% \usepackage{amsmath}
+% \usepackage{unicode-math}
+% \usepackage{amssymb}
 \usepackage{subcaption}
-\usepackage{hyperref}
-\usepackage{cleveref}
+\usepackage[titletoc]{appendix}% http://ctan.org/pkg/appendices
+% \usepackage{hyperref}
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
 \usepackage{geometry}
 
 \geometry{
- a4paper,
+ letterpaper,
  left=32mm,
  right=25mm,
  top=25mm,
@@ -71,9 +73,10 @@
 }
 
 %% Math or theory people may want to include the handy AMS macros
-%\usepackage{amssymb}
-%\usepackage{amsmath}
-%\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{unicode-math}
 
 %% The pifont package provides access to the elements in the dingbat font.   
 %% Use \ding{##} for a particular dingbat (see p7 of psnfss2e.pdf)
@@ -144,7 +147,7 @@
 %% for upper-casing and lower-casing text.  The following causes
 %% the acronym package to typeset acronyms in small-caps
 %% as recommended by Bringhurst.
-\renewcommand{\acsfont}[1]{{\scshape \MakeTextLowercase{#1}}}
+% \renewcommand{\acsfont}[1]{{\scshape \MakeTextLowercase{#1}}}
 
 %% color: add support for expressing colour models.  Grey can be used
 %% to great effect to emphasize other parts of a graphic or text.
@@ -244,9 +247,10 @@
 %%   that the ToC, LoF, LoT place the hyperlink on the page number,
 %%   rather than the entry text.
 \usepackage[bookmarks,bookmarksnumbered,%
-    allbordercolors={0.8 0.8 0.8},%
+    pdfborder={0 0 0},%
     pagebackref,linktocpage%
     ]{hyperref}
+\usepackage{cleveref}
 %% The following change how the the back-references text is typeset in a
 %% bibliography when `backref' or `pagebackref' are used
 %%
@@ -272,10 +276,10 @@
 %% The following uses most defaults, which causes hyperlinks to be
 %% surrounded by colourful boxes; the colours are only visible in
 %% PDFs and don't show up when printed:
-%\usepackage[bookmarks,bookmarksnumbered]{hyperref}
+% \usepackage[bookmarks,bookmarksnumbered]{hyperref}
 
 %% The following disables the colourful boxes around hyperlinks.
-%\usepackage[bookmarks,bookmarksnumbered,pdfborder={0 0 0}]{hyperref}
+% \usepackage[bookmarks,bookmarksnumbered,pdfborder={0 0 0}]{hyperref}
 
 %% The following disables all hyperlinking, but still enabled use of
 %% \autoref{}
@@ -317,11 +321,11 @@
 %% Document meta-data: be sure to also change the \hypersetup information
 %%
 
-\title{Understanding Reinforcement Learning for Locomotion}
+\title{Learning Locomotion: Symmetry and Torque Limit Considerations}
 %\subtitle{If you want a subtitle}
 
 \author{Farzad Abdolhosseini}
-\previousdegree{Computer Engineering, Sharif University of Technology, 2017}
+\previousdegree{B.Sc., Sharif University of Technology, 2017}
 %\previousdegree{M. Silly Walks, Another University, 1994}
 
 % What is this dissertation for?
@@ -330,15 +334,15 @@
 \institution{The University of British Columbia}
 \campus{Vancouver}
 
-\faculty{The Faculty of Science}
+\faculty{The Faculty of Graduate and Postdoctoral Studies}
 \department{Computer Science}
-\submissionmonth{August}
+\submissionmonth{September}
 \submissionyear{2019}
 
 %%%%% TODOOOO:
 % details of your examining committee
 \examiningcommittee{Michiel van de Panne, Computer Science}{Supervisor}
-\examiningcommittee{Leonid Sigal, Computer Science}{Supervisory Committee Member}
+\examiningcommittee{Leonid Sigal, Computer Science}{Additional Examiner}
 % \examiningcommittee{Nebulous Name, Department}{Supervisory Committee Member}
 % \examiningcommittee{Magnus Monolith, Other Department}{Additional Examiner}
 
@@ -351,9 +355,9 @@
 %% hyperref package provides support for embedding meta-data in .PDF
 %% files
 \hypersetup{
-  pdftitle={Change this title!  (DRAFT: \today)},
-  pdfauthor={Johnny Canuck},
-  pdfkeywords={Your keywords here}
+  pdftitle={Learning Locomotion: Symmetry and Torque Limit Considerations},
+  pdfauthor={Farzad Abdolhosseini},
+  pdfkeywords={Reinforcement Learning, Locomotion, Computer Graphics, Physics-based Animation, Invariance, Equivariance, Symmetry, Curriculum Learning}
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -369,6 +373,8 @@
 %% avoiding reprocessing the entire file.
 %\includeonly{intro,conclusions}
 %\includeonly{discussion}
+
+\renewcommand\appendixname{Appendix}
 
 \begin{document}
 
@@ -456,11 +462,17 @@
 \bibliography{biblio}
 \end{singlespace}
 
-\appendix
+\begin{appendices}[titletoc]
+
+% \appendix
+% \addappheadtotoc
+% \noappendicestocpagenum
 %    6. Appendices (including copies of all required UBC Research
 %       Ethics Board's Certificates of Approval)
-%\include{reb-coa}	% pdfpages is useful here
+% \include{reb-coa}	% pdfpages is useful here
 \include{appendix}
+\end{appendices}
+
 
 \backmatter
 %    7. Index
