@@ -1,7 +1,17 @@
 # MSc Thesis
-This repo is supposed to contain the contents of my MSc thesis. It is based on a [template](https://github.com/briandealwis/ubcdiss) by Brian de Alwis. The rest of this document contains the original contents of the README file.
+This repo contains the source code for my MSc thesis, titled "Learning Locomotion: Symmetry and Torque Limit Considerations". It is based on a [template](https://github.com/briandealwis/ubcdiss) by Brian de Alwis. The rest of this document contains the original contents of the README file.
 
-# `ubcdiss` &ndash; a dissertation template for LaTeX
+This thesis was done at the department of [Computer Scicence at UBC](https://www.cs.ubc.ca/) under the supervision of [Michiel van de Panne](http://cs.ubc.ca/~van). Chapter 5 of the thesis was presented at MIG 2019 under the title: ["On Learning Symmetric Locomotion"](https://doi.org/10.1145/3359566.3360070).
+
+The final PDF version is available under [`doc.pdf`](doc.pdf) and the authoritative URI at the UBC library website is availabe [here](http://hdl.handle.net/2429/71825).
+
+**Keywords:** Reinforcement Learning, Locomotion, Computer Graphics, Physics-based Animation, Invariance, Equivariance, Symmetry, Curriculum Learning.
+
+-----------------------------
+-----------------------------
+-----------------------------
+## Original README from the [template](https://github.com/briandealwis/ubcdiss)
+### `ubcdiss` &ndash; a dissertation template for LaTeX
 
 This distribution provides a LaTeX template for writing a dissertation
 conformant with UBC's specifications (as of Oct 2010).  The template
